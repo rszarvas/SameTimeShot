@@ -82,7 +82,7 @@
         android:layout_height="56dp"
         android:layout_marginBottom="12dp"
         android:background="@drawable/bg_info_button"
-        android:backgroundTint="#99FFFFFF"
+        android:backgroundTint="#80FFFFFF"
         android:clickable="true"
         android:focusable="true"
         app:layout_constraintBottom_toTopOf="@id/guideText"
