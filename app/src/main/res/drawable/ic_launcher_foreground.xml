@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- ===== BAL KAMERA (jobbra néz, lencse a jobb oldalon) ===== -->
+
+    <!-- Test -->
+    <path
+        android:fillColor="#C8AEFF"
+        android:pathData="M8,46 L8,70 Q8,74 12,74 L50,74 Q54,74 54,70 L54,46 Q54,42 50,42 L12,42 Q8,42 8,46 Z"/>
+    <!-- Teteje (kereső bump) -->
+    <path
+        android:fillColor="#C8AEFF"
+        android:pathData="M14,42 L14,35 Q14,32 17,32 L29,32 Q32,32 32,35 L32,42 Z"/>
+    <!-- Vaku jelzés -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M36,36 L42,36 Q44,36 44,38 L44,40 Q44,42 42,42 L36,42 Q34,42 34,40 L34,38 Q34,36 36,36 Z"
+        android:fillAlpha="0.5"/>
+    <!-- Lencse gyűrű (lila) -->
+    <path
+        android:fillColor="#7C4DFF"
+        android:pathData="M44,58 m-12,0 a12,12 0,1,0 24,0 a12,12 0,1,0 -24,0"/>
+    <!-- Lencse belső -->
+    <path
+        android:fillColor="#4A1FCC"
+        android:pathData="M44,58 m-7,0 a7,7 0,1,0 14,0 a7,7 0,1,0 -14,0"/>
+    <!-- Lencse fénye -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M39,53 a4,4 0,1,0 8,0 a4,4 0,1,0 -8,0"
+        android:fillAlpha="0.3"/>
+
+    <!-- ===== JOBB KAMERA (balra néz, lencse a bal oldalon) ===== -->
+
+    <!-- Test -->
+    <path
+        android:fillColor="#FFAECE"
+        android:pathData="M100,46 L100,70 Q100,74 96,74 L58,74 Q54,74 54,70 L54,46 Q54,42 58,42 L96,42 Q100,42 100,46 Z"/>
+    <!-- Teteje (kereső bump) -->
+    <path
+        android:fillColor="#FFAECE"
+        android:pathData="M94,42 L94,35 Q94,32 91,32 L79,32 Q76,32 76,35 L76,42 Z"/>
+    <!-- Vaku jelzés -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M72,36 L66,36 Q64,36 64,38 L64,40 Q64,42 66,42 L72,42 Q74,42 74,40 L74,38 Q74,36 72,36 Z"
+        android:fillAlpha="0.5"/>
+    <!-- Lencse gyűrű (pink) -->
+    <path
+        android:fillColor="#FF4081"
+        android:pathData="M64,58 m-12,0 a12,12 0,1,0 24,0 a12,12 0,1,0 -24,0"/>
+    <!-- Lencse belső -->
+    <path
+        android:fillColor="#C0003C"
+        android:pathData="M64,58 m-7,0 a7,7 0,1,0 14,0 a7,7 0,1,0 -14,0"/>
+    <!-- Lencse fénye -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M59,53 a4,4 0,1,0 8,0 a4,4 0,1,0 -8,0"
+        android:fillAlpha="0.3"/>
+
+    <!-- Középső szinkron pont -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M51,56 a3,3 0,1,0 6,0 a3,3 0,1,0 -6,0"
+        android:fillAlpha="0.9"/>
+
+</vector>

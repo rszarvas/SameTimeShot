@@ -1,0 +1,46 @@
+[
+    {
+        "merged": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-mergeDebugResources-54:\\layout\\fragment_gallery.xml",
+        "source": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-main-57:\\layout\\fragment_gallery.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-mergeDebugResources-54:\\layout\\item_gallery_session.xml",
+        "source": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-main-57:\\layout\\item_gallery_session.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-mergeDebugResources-54:\\layout\\item_device.xml",
+        "source": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-main-57:\\layout\\item_device.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-mergeDebugResources-54:\\layout\\fragment_client.xml",
+        "source": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-main-57:\\layout\\fragment_client.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-mergeDebugResources-54:\\layout\\item_discovered_device.xml",
+        "source": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-main-57:\\layout\\item_discovered_device.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-mergeDebugResources-54:\\layout\\fragment_photo_viewer.xml",
+        "source": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-main-57:\\layout\\fragment_photo_viewer.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-mergeDebugResources-54:\\layout\\fragment_info.xml",
+        "source": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-main-57:\\layout\\fragment_info.xml"
+    },
+    {
+        "merged": "com.sametime.shot.app-mergeDebugResources-54:/layout/fragment_client.xml",
+        "source": "com.sametime.shot.app-main-57:/layout/fragment_client.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-mergeDebugResources-54:\\layout\\activity_main.xml",
+        "source": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-main-57:\\layout\\activity_main.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-mergeDebugResources-54:\\layout\\fragment_start.xml",
+        "source": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-main-57:\\layout\\fragment_start.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-mergeDebugResources-54:\\layout\\fragment_controller.xml",
+        "source": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-main-57:\\layout\\fragment_controller.xml"
+    }
+]

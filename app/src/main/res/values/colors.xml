@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Backgrounds -->
+    <color name="bg_primary">#080810</color>
+    <color name="bg_surface">#12121E</color>
+    <color name="bg_card">#181826</color>
+    <color name="bg_card_elevated">#1E1E30</color>
+
+    <!-- Text -->
+    <color name="text_primary">#F0F0FF</color>
+    <color name="text_secondary">#8888AA</color>
+    <color name="text_tertiary">#55556A</color>
+
+    <!-- Brand gradient endpoints – tompított lila/rózsa -->
+    <color name="gradient_start">#6535D8</color>
+    <color name="gradient_end">#D93068</color>
+
+    <!-- Accent -->
+    <color name="accent">#00D4FF</color>
+    <color name="accent_dim">#1A00D4FF</color>
+
+    <!-- Status -->
+    <color name="status_connected">#00E676</color>
+    <color name="status_transferring">#FFAB40</color>
+    <color name="status_done">#69F0AE</color>
+    <color name="status_error">#FF5252</color>
+
+    <!-- Material theme compat -->
+    <color name="colorPrimary">#6535D8</color>
+    <color name="colorPrimaryVariant">#4A26A8</color>
+    <color name="colorOnPrimary">#FFFFFF</color>
+    <color name="colorSecondary">#FF4081</color>
+    <color name="colorOnSecondary">#FFFFFF</color>
+    <color name="colorSurface">#12121E</color>
+    <color name="colorOnSurface">#F0F0FF</color>
+    <color name="colorBackground">#080810</color>
+    <color name="ic_launcher_bg">#D4A86A</color>
+    <color name="colorOnBackground">#F0F0FF</color>
+    <color name="colorError">#FF5252</color>
+    <color name="colorOnError">#FFFFFF</color>
+</resources>

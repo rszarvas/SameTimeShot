@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="#40FFFFFF">
+    <item>
+        <layer-list>
+            <!-- Outer ring -->
+            <item>
+                <shape android:shape="oval">
+                    <stroke android:width="3dp" android:color="#FFFFFF" />
+                    <solid android:color="#00000000" />
+                </shape>
+            </item>
+            <!-- Inner filled circle -->
+            <item
+                android:top="6dp"
+                android:bottom="6dp"
+                android:left="6dp"
+                android:right="6dp">
+                <shape android:shape="oval">
+                    <solid android:color="#FFFFFF" />
+                </shape>
+            </item>
+        </layer-list>
+    </item>
+</ripple>

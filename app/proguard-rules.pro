@@ -1,0 +1,2 @@
+-keep class androidx.camera.** { *; }
+-keep class com.sametime.shot.** { *; }

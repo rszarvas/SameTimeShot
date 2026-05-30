@@ -1,0 +1,218 @@
+[
+    {
+        "merged": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-merged_res-55:\\drawable_indicator_error.xml.flat",
+        "source": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-main-57:\\drawable\\indicator_error.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-merged_res-55:\\layout_item_discovered_device.xml.flat",
+        "source": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-main-57:\\layout\\item_discovered_device.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-merged_res-55:\\drawable_gradient_bottom_fade.xml.flat",
+        "source": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-main-57:\\drawable\\gradient_bottom_fade.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-merged_res-55:\\drawable_gradient_top_fade.xml.flat",
+        "source": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-main-57:\\drawable\\gradient_top_fade.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-merged_res-55:\\drawable_ic_launcher_background.xml.flat",
+        "source": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-main-57:\\drawable\\ic_launcher_background.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-merged_res-55:\\anim_slide_out_left.xml.flat",
+        "source": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-main-57:\\anim\\slide_out_left.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-merged_res-55:\\drawable_ic_delete.xml.flat",
+        "source": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-main-57:\\drawable\\ic_delete.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-merged_res-55:\\drawable_bg_card.xml.flat",
+        "source": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-main-57:\\drawable\\bg_card.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-merged_res-55:\\drawable_bg_card_clickable.xml.flat",
+        "source": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-main-57:\\drawable\\bg_card_clickable.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-merged_res-55:\\drawable_indicator_idle.xml.flat",
+        "source": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-main-57:\\drawable\\indicator_idle.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-merged_res-55:\\drawable_ikon.png.flat",
+        "source": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-main-57:\\drawable\\ikon.png"
+    },
+    {
+        "merged": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-merged_res-55:\\anim_slide_in_left.xml.flat",
+        "source": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-main-57:\\anim\\slide_in_left.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-merged_res-55:\\drawable_bg_button_kliens.xml.flat",
+        "source": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-main-57:\\drawable\\bg_button_kliens.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-merged_res-55:\\layout_item_device.xml.flat",
+        "source": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-main-57:\\layout\\item_device.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-merged_res-55:\\anim_fade_out.xml.flat",
+        "source": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-main-57:\\anim\\fade_out.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-merged_res-55:\\navigation_nav_graph.xml.flat",
+        "source": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-main-57:\\navigation\\nav_graph.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-merged_res-55:\\drawable_app_hatter.png.flat",
+        "source": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-main-57:\\drawable\\app_hatter.png"
+    },
+    {
+        "merged": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-merged_res-55:\\drawable_bg_client_badge.xml.flat",
+        "source": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-main-57:\\drawable\\bg_client_badge.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-merged_res-55:\\drawable_bg_icon_button.xml.flat",
+        "source": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-main-57:\\drawable\\bg_icon_button.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-merged_res-55:\\layout_fragment_photo_viewer.xml.flat",
+        "source": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-main-57:\\layout\\fragment_photo_viewer.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-merged_res-55:\\anim_slide_out_right.xml.flat",
+        "source": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-main-57:\\anim\\slide_out_right.xml"
+    },
+    {
+        "merged": "com.sametime.shot.app-merged_res-55:/layout_fragment_client.xml.flat",
+        "source": "com.sametime.shot.app-main-57:/layout/fragment_client.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-merged_res-55:\\drawable_bg_button_danger.xml.flat",
+        "source": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-main-57:\\drawable\\bg_button_danger.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-merged_res-55:\\drawable_bg_button_secondary.xml.flat",
+        "source": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-main-57:\\drawable\\bg_button_secondary.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-merged_res-55:\\drawable_bg_shutter_button.xml.flat",
+        "source": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-main-57:\\drawable\\bg_shutter_button.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-merged_res-55:\\drawable_bg_telefon1_badge.xml.flat",
+        "source": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-main-57:\\drawable\\bg_telefon1_badge.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-merged_res-55:\\anim_slide_out_down.xml.flat",
+        "source": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-main-57:\\anim\\slide_out_down.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-merged_res-55:\\layout_fragment_info.xml.flat",
+        "source": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-main-57:\\layout\\fragment_info.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-merged_res-55:\\anim_fade_in.xml.flat",
+        "source": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-main-57:\\anim\\fade_in.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-merged_res-55:\\drawable_bg_button_exit.xml.flat",
+        "source": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-main-57:\\drawable\\bg_button_exit.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-merged_res-55:\\drawable_ic_warning.xml.flat",
+        "source": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-main-57:\\drawable\\ic_warning.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-merged_res-55:\\drawable_bg_info_button.xml.flat",
+        "source": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-main-57:\\drawable\\bg_info_button.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-merged_res-55:\\layout_fragment_controller.xml.flat",
+        "source": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-main-57:\\layout\\fragment_controller.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-merged_res-55:\\drawable_bg_count_badge.xml.flat",
+        "source": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-main-57:\\drawable\\bg_count_badge.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-merged_res-55:\\drawable_gradient_background.xml.flat",
+        "source": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-main-57:\\drawable\\gradient_background.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-merged_res-55:\\layout_fragment_client.xml.flat",
+        "source": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-main-57:\\layout\\fragment_client.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-merged_res-55:\\drawable_bg_warning_banner.xml.flat",
+        "source": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-main-57:\\drawable\\bg_warning_banner.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-merged_res-55:\\drawable_gradient_bottom_fade_light.xml.flat",
+        "source": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-main-57:\\drawable\\gradient_bottom_fade_light.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-merged_res-55:\\drawable_gradient_top_fade_dark.xml.flat",
+        "source": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-main-57:\\drawable\\gradient_top_fade_dark.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-merged_res-55:\\drawable_ic_launcher_foreground.xml.flat",
+        "source": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-main-57:\\drawable\\ic_launcher_foreground.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-merged_res-55:\\layout_fragment_start.xml.flat",
+        "source": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-main-57:\\layout\\fragment_start.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-merged_res-55:\\drawable_bg_delete_btn.xml.flat",
+        "source": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-main-57:\\drawable\\bg_delete_btn.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-merged_res-55:\\anim_slide_in_up.xml.flat",
+        "source": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-main-57:\\anim\\slide_in_up.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-merged_res-55:\\mipmap-anydpi-v26_ic_launcher.xml.flat",
+        "source": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-main-57:\\mipmap-anydpi-v26\\ic_launcher.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-merged_res-55:\\anim_slide_in_right.xml.flat",
+        "source": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-main-57:\\anim\\slide_in_right.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-merged_res-55:\\layout_fragment_gallery.xml.flat",
+        "source": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-main-57:\\layout\\fragment_gallery.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-merged_res-55:\\drawable_gradient_divider.xml.flat",
+        "source": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-main-57:\\drawable\\gradient_divider.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-merged_res-55:\\mipmap-anydpi-v26_ic_launcher_round.xml.flat",
+        "source": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-main-57:\\mipmap-anydpi-v26\\ic_launcher_round.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-merged_res-55:\\layout_activity_main.xml.flat",
+        "source": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-main-57:\\layout\\activity_main.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-merged_res-55:\\drawable_indicator_active.xml.flat",
+        "source": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-main-57:\\drawable\\indicator_active.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-merged_res-55:\\layout_item_gallery_session.xml.flat",
+        "source": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-main-57:\\layout\\item_gallery_session.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-merged_res-55:\\drawable_ic_info.xml.flat",
+        "source": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-main-57:\\drawable\\ic_info.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-merged_res-55:\\drawable_bg_button_primary.xml.flat",
+        "source": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-main-57:\\drawable\\bg_button_primary.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-merged_res-55:\\drawable_indicator_done.xml.flat",
+        "source": "C:\\Users\\Ricsi\\.gradle\\daemon\\8.2\\com.sametime.shot.app-main-57:\\drawable\\indicator_done.xml"
+    }
+]

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SameTime Shot</string>
+    <string name="app_subtitle">Egyidejű fényképezés</string>
+
+    <string name="btn_controller">Vezérlő</string>
+    <string name="btn_client">Kliens</string>
+    <string name="btn_lock">Kapcsolatok lezárása</string>
+    <string name="btn_shoot">Fénykép készítése</string>
+    <string name="btn_gallery">Galéria</string>
+    <string name="btn_exit">Kilépés</string>
+    <string name="btn_connect">Csatlakozás</string>
+    <string name="btn_refresh">Keresés újraindítása</string>
+    <string name="btn_back">Vissza</string>
+
+    <string name="status_waiting">Várakozás csatlakozásokra…</string>
+    <string name="status_connected">Csatlakozva</string>
+    <string name="status_locked">Kamera aktív – készen áll a fotózásra</string>
+    <string name="status_discovering">Eszközök keresése…</string>
+    <string name="status_no_devices">Nem találhatók eszközök.\nIndítsa el a keresést újra.</string>
+    <string name="status_waiting_controller">Várakozás a vezérlőre…</string>
+    <string name="status_camera_ready">Kamera aktív – várja a vezérlőt</string>
+    <string name="status_shooting">Fénykép készítése…</string>
+    <string name="status_transferring">Átvitel folyamatban…</string>
+
+    <string name="gallery_empty">Nincsenek mentett képek.\nFotózzon a vezérlő nézetből!</string>
+    <string name="device_count_format">%d / 7 telefon csatlakozva</string>
+    <string name="no_bluetooth">Ez az eszköz nem támogatja a Bluetooth-t.</string>
+    <string name="missing_permissions">Szükséges engedélyek hiányoznak!</string>
+    <string name="no_device_selected">Nincs csatlakozott telefon!</string>
+</resources>
