@@ -36,19 +36,14 @@ class StartFragment : Fragment() {
             insets
         }
 
-        // Vezérlő gomb
+        // Vezérlő gomb - WiFi hotspot automatikusan indul
         b.btnController.setOnClickListener {
-            (activity as? MainActivity)?.ensureBluetoothEnabled {
-                (activity as? MainActivity)?.requestDiscoverable()
-                findNavController().navigate(R.id.action_startFragment_to_controllerFragment)
-            }
+            findNavController().navigate(R.id.action_startFragment_to_controllerFragment)
         }
 
-        // Kliens gomb
+        // Kliens gomb - WiFi hotspot keresése automatikusan indul
         b.btnClient.setOnClickListener {
-            (activity as? MainActivity)?.ensureBluetoothEnabled {
-                findNavController().navigate(R.id.action_startFragment_to_clientFragment)
-            }
+            findNavController().navigate(R.id.action_startFragment_to_clientFragment)
         }
 
         b.btnInfo.setOnClickListener {
