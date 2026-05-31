@@ -53,15 +53,9 @@ class WifiHotspotManager(private val context: Context) {
                 }
 
                 override fun onFailed(reason: Int) {
-                    val reasonText = when (reason) {
-                        ERROR_GENERAL -> "Általános hiba"
-                        ERROR_INCOMPATIBLE_MODE -> "Inkompatibilis mód"
-                        ERROR_TETHERING_DISALLOWED -> "Tethering letiltva"
-                        else -> "Ismeretlen hiba ($reason)"
-                    }
-                    Log.e(TAG, "✗ Hotspot indítás sikertelen: $reasonText")
+                    Log.e(TAG, "✗ Hotspot indítás sikertelen: kód $reason")
                     hotspotActive = false
-                    onResult(false, "WiFi hálózat indítása sikertelen: $reasonText")
+                    onResult(false, "WiFi hálózat indítása sikertelen (kód: $reason)")
                 }
             }
 
