@@ -33,12 +33,12 @@ class WifiScanner(private val context: Context) {
     private var isConnected = false
 
     /**
-     * Csatlakozás a "sametimeshot" WiFi hálózathoz
+     * Csatlakozás a WiFi hálózathoz (dinamikus SSID-val)
      */
     @SuppressLint("MissingPermission")
-    fun connectToSameTimeShot(onResult: (success: Boolean, message: String) -> Unit) {
+    fun connectToSameTimeShot(ssid: String = TARGET_SSID, password: String = TARGET_PASSWORD, onResult: (success: Boolean, message: String) -> Unit) {
         try {
-            Log.d(TAG, "Csatlakozás a $TARGET_SSID hálózathoz")
+            Log.d(TAG, "Csatlakozás a $ssid hálózathoz")
 
             // WiFi hálózat specifikációja (reflection segítségével Android 12+ kompatibilitáshoz)
             @Suppress("UNCHECKED_CAST")
@@ -50,8 +50,8 @@ class WifiScanner(private val context: Context) {
             val setWpa2PassphraseMethod = builderClass.getMethod("setWpa2Passphrase", String::class.java)
             val buildMethod = builderClass.getMethod("build")
 
-            setSsidMethod.invoke(builder, TARGET_SSID)
-            setWpa2PassphraseMethod.invoke(builder, TARGET_PASSWORD)
+            setSsidMethod.invoke(builder, ssid)
+            setWpa2PassphraseMethod.invoke(builder, password)
 
             val wifiNetworkSpecifier = buildMethod.invoke(builder)
 
@@ -71,11 +71,11 @@ class WifiScanner(private val context: Context) {
             // Csatlakozási callback
             val networkCallback = object : ConnectivityManager.NetworkCallback() {
                 override fun onAvailable(network: Network) {
-                    Log.d(TAG, "✓ Hálózat elérhető: $TARGET_SSID")
+                    Log.d(TAG, "✓ Hálózat elérhető: $ssid")
                     currentNetwork = network
                     isConnected = true
                     connectivityManager.bindProcessToNetwork(network)
-                    onResult(true, "Csatlakozva: $TARGET_SSID")
+                    onResult(true, "Csatlakozva: $ssid")
                 }
 
                 override fun onUnavailable() {
@@ -96,9 +96,9 @@ class WifiScanner(private val context: Context) {
         } catch (e: ClassNotFoundException) {
             // Az emulátorban a WiFi hálózat specifikáció API nem elérhető - szimulálunk
             Log.w(TAG, "⚠️ WiFi API nem elérhető (emulátor?), szimulált csatlakozás")
-            Log.d(TAG, "✓ Szimulált csatlakozás: $TARGET_SSID")
+            Log.d(TAG, "✓ Szimulált csatlakozás: $ssid")
             isConnected = true
-            onResult(true, "Csatlakozva: $TARGET_SSID (test mode)")
+            onResult(true, "Csatlakozva: $ssid (test mode)")
         } catch (e: Exception) {
             Log.e(TAG, "Hiba a csatlakozás közben", e)
             onResult(false, "Hiba: ${e.message}")

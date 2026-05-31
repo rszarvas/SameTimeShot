@@ -116,15 +116,17 @@ class ClientViewModel(application: Application) : AndroidViewModel(application) 
         viewModelScope.launch {
             wifiScanner.scanNetworks { networks ->
                 Log.d(TAG, "Talált hálózatok: $networks")
-                val hasSameTimeShot = networks.contains("sametimeshot")
+                // Local-Only Hotspot API automatikusan generál SSID-t: AndroidShare_XXXX
+                val hasSameTimeShot = networks.any { it.startsWith("AndroidShare_") }
                 if (hasSameTimeShot) {
-                    Log.d(TAG, "✓ sametimeshot hálózat találva!")
-                    _status.postValue("sametimeshot hálózat találva – csatlakozás...")
+                    val foundNetwork = networks.first { it.startsWith("AndroidShare_") }
+                    Log.d(TAG, "✓ Hotspot hálózat található: $foundNetwork")
+                    _status.postValue("Hotspot hálózat találva – csatlakozás...")
                     // Automatikus csatlakozás
-                    connectToController()
+                    connectToController(foundNetwork)
                 } else {
-                    Log.w(TAG, "sametimeshot hálózat nem található")
-                    _status.postValue("sametimeshot hálózat nem található. Próbálja később.")
+                    Log.w(TAG, "Hotspot hálózat nem található")
+                    _status.postValue("Hotspot hálózat nem található. Próbálja később.")
                     _isDiscovering.postValue(false)
                 }
             }
@@ -134,12 +136,12 @@ class ClientViewModel(application: Application) : AndroidViewModel(application) 
     /**
      * Csatlakozás a vezérlőhöz WiFi hotspottal
      */
-    private fun connectToController() {
-        Log.d(TAG, "Csatlakozás a vezérlőhöz WiFi-n")
-        _status.value = "sametimeshot-hoz csatlakozás..."
+    private fun connectToController(hotspotSsid: String) {
+        Log.d(TAG, "Csatlakozás a vezérlőhöz WiFi-n: $hotspotSsid")
+        _status.value = "Hotspothoz csatlakozás..."
 
         // WiFi csatlakozás
-        wifiScanner.connectToSameTimeShot { wifiSuccess, wifiMessage ->
+        wifiScanner.connectToSameTimeShot(ssid = hotspotSsid, password = "sametimeshot123") { wifiSuccess, wifiMessage ->
             Log.d(TAG, "WiFi callback: $wifiMessage")
             _status.postValue(wifiMessage)
 
