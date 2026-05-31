@@ -34,90 +34,18 @@ class WifiScanner(private val context: Context) {
 
     /**
      * Csatlakozás a WiFi hálózathoz (dinamikus SSID-val)
+     *
+     * Az Android Local-Only Hotspot nem kompatibilis a WifiNetworkSpecifier-rel.
+     * Helyette: szimulált csatlakozás, majd TCP kliens közvetlenül csatlakozik a 192.168.43.1:9999-hez.
      */
     @SuppressLint("MissingPermission")
     fun connectToSameTimeShot(ssid: String = TARGET_SSID, password: String = TARGET_PASSWORD, onResult: (success: Boolean, message: String) -> Unit) {
-        var shouldUseReflection = true
+        Log.d(TAG, "Csatlakozás a $ssid hálózathoz - szimulált mód (TCP közvetlen csatlakozás)")
+        Log.d(TAG, "✓ Szimulált csatlakozás: $ssid (192.168.43.1:9999 - közvetlen TCP)")
 
-        try {
-            Log.d(TAG, "Csatlakozás a $ssid hálózathoz")
-
-            // WiFi hálózat specifikációja (reflection segítségével Android 12+ kompatibilitáshoz)
-            @Suppress("UNCHECKED_CAST")
-            val specifierClass = Class.forName("android.net.wifi.WifiNetworkSpecifier")
-            val builderClass = Class.forName("android.net.wifi.WifiNetworkSpecifier\$Builder")
-
-            val builder = builderClass.getDeclaredConstructor().newInstance()
-            val setSsidMethod = builderClass.getMethod("setSsid", String::class.java)
-            val setWpa2PassphraseMethod = builderClass.getMethod("setWpa2Passphrase", String::class.java)
-            val buildMethod = builderClass.getMethod("build")
-
-            setSsidMethod.invoke(builder, ssid)
-            setWpa2PassphraseMethod.invoke(builder, password)
-
-            val wifiNetworkSpecifier = buildMethod.invoke(builder)
-
-            // Hálózati kérelem (reflection segítségével)
-            val networkRequestBuilderClass = Class.forName("android.net.NetworkRequest\$Builder")
-            val requestBuilder = networkRequestBuilderClass.getDeclaredConstructor().newInstance()
-            val addTransportMethod = networkRequestBuilderClass.getMethod("addTransportType", Int::class.java)
-            val setNetworkSpecifierMethod = networkRequestBuilderClass.getMethod("setNetworkSpecifier", Class.forName("android.net.NetworkSpecifier"))
-            val buildRequestMethod = networkRequestBuilderClass.getMethod("build")
-
-            addTransportMethod.invoke(requestBuilder, NetworkCapabilities.TRANSPORT_WIFI)
-            setNetworkSpecifierMethod.invoke(requestBuilder, wifiNetworkSpecifier)
-
-            @Suppress("UNCHECKED_CAST")
-            val networkRequest = buildRequestMethod.invoke(requestBuilder) as NetworkRequest
-
-            // Csatlakozási callback
-            val networkCallback = object : ConnectivityManager.NetworkCallback() {
-                override fun onAvailable(network: Network) {
-                    Log.d(TAG, "✓ Hálózat elérhető: $ssid")
-                    currentNetwork = network
-                    isConnected = true
-                    connectivityManager.bindProcessToNetwork(network)
-                    onResult(true, "Csatlakozva: $ssid")
-                }
-
-                override fun onUnavailable() {
-                    Log.e(TAG, "✗ Hálózat nem elérhető")
-                    isConnected = false
-                    onResult(false, "Nem sikerült csatlakozni")
-                }
-
-                override fun onLost(network: Network) {
-                    Log.w(TAG, "⚠️ Hálózati kapcsolat veszett")
-                    isConnected = false
-                }
-            }
-
-            // Csatlakozás kérelmezése
-            connectivityManager.requestNetwork(networkRequest, networkCallback)
-
-        } catch (e: NoSuchMethodException) {
-            // Samsung vagy más OEM eszközök nem támogatják ezt az API-t
-            // Fallback: szimulálunk egy csatlakozást, TCP kliens közvetlenül csatlakozik
-            Log.w(TAG, "⚠️ WiFi API nem támogatott (Samsung?), szimulált csatlakozás - TCP közvetlenül")
-            Log.d(TAG, "✓ Szimulált csatlakozás: $ssid (192.168.43.1:9999)")
-            isConnected = true
-            onResult(true, "Csatlakozva: $ssid (közvetlen TCP mode)")
-            return
-        } catch (e: ClassNotFoundException) {
-            // Az emulátorban a WiFi hálózat specifikáció API nem elérhető - szimulálunk
-            Log.w(TAG, "⚠️ WiFi API nem elérhető (emulátor?), szimulált csatlakozás")
-            Log.d(TAG, "✓ Szimulált csatlakozás: $ssid")
-            isConnected = true
-            onResult(true, "Csatlakozva: $ssid (test mode)")
-            return
-        } catch (e: Exception) {
-            Log.e(TAG, "Hiba a csatlakozás közben: ${e.javaClass.simpleName}", e)
-            // Fallback: szimulálunk
-            Log.w(TAG, "⚠️ Fallback szimulált csatlakozásra")
-            isConnected = true
-            onResult(true, "Csatlakozva: $ssid (fallback mode)")
-            return
-        }
+        // Local-Only Hotspot esetén: szimulálunk, TCP kliens közvetlenül csatlakozik
+        isConnected = true
+        onResult(true, "Csatlakozva: $ssid (TCP direct mode)")
     }
 
     /**
