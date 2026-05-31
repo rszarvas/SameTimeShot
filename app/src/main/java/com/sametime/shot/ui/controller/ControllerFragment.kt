@@ -1,11 +1,16 @@
 package com.sametime.shot.ui.controller
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
@@ -27,8 +32,12 @@ class ControllerFragment : Fragment() {
     private lateinit var cameraHelper: CameraHelper
     private val preLockAdapter = DeviceAdapter()
     private val postLockAdapter = DeviceAdapter()
+    private var serverStartAttempted = false
 
-    companion object { private const val TAG = "STS-Controller" }
+    companion object {
+        private const val TAG = "STS-Controller"
+        private const val PERMISSION_REQUEST_CODE = 100
+    }
 
     override fun onCreateView(i: LayoutInflater, c: ViewGroup?, s: Bundle?): View {
         _b = FragmentControllerBinding.inflate(i, c, false); return b.root
@@ -129,8 +138,55 @@ class ControllerFragment : Fragment() {
                 findNavController().navigate(R.id.action_controllerFragment_to_startFragment)
             }
         }
+    }
 
-        vm.startServer()
+    override fun onResume() {
+        super.onResume()
+        if (!serverStartAttempted) {
+            serverStartAttempted = true
+            requestWiFiPermissionAndStartServer()
+        }
+    }
+
+    private fun requestWiFiPermissionAndStartServer() {
+        // Android 13+ szükséges az engedély
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.NEARBY_WIFI_DEVICES
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
+                Log.d(TAG, "✓ NEARBY_WIFI_DEVICES engedély megadva")
+                vm.startServer()
+            } else {
+                Log.d(TAG, "Engedély kérése: NEARBY_WIFI_DEVICES")
+                ActivityCompat.requestPermissions(
+                    requireActivity(),
+                    arrayOf(Manifest.permission.NEARBY_WIFI_DEVICES),
+                    PERMISSION_REQUEST_CODE
+                )
+            }
+        } else {
+            // Android 12 és alatta
+            vm.startServer()
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == PERMISSION_REQUEST_CODE) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Log.d(TAG, "✓ Engedély megadva, szerver indítása...")
+                vm.startServer()
+            } else {
+                Log.e(TAG, "✗ Engedély megtagadva!")
+                Toast.makeText(requireContext(), "WiFi engedély szükséges!", Toast.LENGTH_LONG).show()
+            }
+        }
     }
 
     override fun onDestroyView() {
