@@ -10,6 +10,7 @@ import java.io.DataInputStream
 import java.io.DataOutputStream
 import java.io.InputStreamReader
 import java.io.OutputStreamWriter
+import java.net.InetAddress
 import java.net.ServerSocket
 import java.net.Socket
 import java.util.concurrent.ConcurrentHashMap
@@ -46,9 +47,10 @@ class TcpServer(
         }
 
         try {
-            serverSocket = ServerSocket(port)
+            // IPv4-en hallgatunk (0.0.0.0), nem IPv6-on
+            serverSocket = ServerSocket(port, 50, InetAddress.getByName("0.0.0.0"))
             isRunning = true
-            Log.d(TAG, "✓ TCP szerver elindult a $port porton")
+            Log.d(TAG, "✓ TCP szerver elindult a $port porton (IPv4: 0.0.0.0)")
 
             // Kliens elfogadása egy külön szálban
             kotlin.concurrent.thread {
