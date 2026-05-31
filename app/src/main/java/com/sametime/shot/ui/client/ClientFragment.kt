@@ -1,10 +1,16 @@
 package com.sametime.shot.ui.client
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
@@ -23,8 +29,12 @@ class ClientFragment : Fragment() {
     private val vm: ClientViewModel by viewModels()
     private lateinit var cameraHelper: CameraHelper
     private lateinit var deviceAdapter: DiscoveredDeviceAdapter
+    private var discoveryStartAttempted = false
 
-    companion object { private const val TAG = "STS-Client" }
+    companion object {
+        private const val TAG = "STS-Client"
+        private const val PERMISSION_REQUEST_CODE = 101
+    }
 
     override fun onCreateView(i: LayoutInflater, c: ViewGroup?, s: Bundle?): View {
         _b = FragmentClientBinding.inflate(i, c, false); return b.root
@@ -128,8 +138,55 @@ class ClientFragment : Fragment() {
         vm.navigateToStart.observe(viewLifecycleOwner) { navigate ->
             if (navigate) { vm.onNavigatedToStart(); findNavController().navigate(R.id.action_clientFragment_to_startFragment) }
         }
+    }
 
-        vm.startDiscovery()
+    override fun onResume() {
+        super.onResume()
+        if (!discoveryStartAttempted) {
+            discoveryStartAttempted = true
+            requestWiFiPermissionAndStartDiscovery()
+        }
+    }
+
+    private fun requestWiFiPermissionAndStartDiscovery() {
+        // Android 13+ szükséges az engedély
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
+                Log.d(TAG, "✓ ACCESS_FINE_LOCATION engedély megadva")
+                vm.startDiscovery()
+            } else {
+                Log.d(TAG, "Engedély kérése: ACCESS_FINE_LOCATION")
+                ActivityCompat.requestPermissions(
+                    requireActivity(),
+                    arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                    PERMISSION_REQUEST_CODE
+                )
+            }
+        } else {
+            // Android 12 és alatta
+            vm.startDiscovery()
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == PERMISSION_REQUEST_CODE) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Log.d(TAG, "✓ Engedély megadva, keresés indítása...")
+                vm.startDiscovery()
+            } else {
+                Log.e(TAG, "✗ Engedély megtagadva!")
+                Toast.makeText(requireContext(), "WiFi engedély szükséges!", Toast.LENGTH_LONG).show()
+            }
+        }
     }
 
     override fun onDestroyView() {
