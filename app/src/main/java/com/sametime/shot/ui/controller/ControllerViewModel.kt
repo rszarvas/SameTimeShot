@@ -5,23 +5,40 @@ import android.app.Application
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
 import android.content.ContentValues
+import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
+import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import com.sametime.shot.bluetooth.ControllerBtManager
 import com.sametime.shot.model.ConnectedDevice
 import com.sametime.shot.model.TransferState
 import com.sametime.shot.model.TransferStatus
+import com.sametime.shot.model.WifiClient
+import com.sametime.shot.tcp.TcpServer
+import com.sametime.shot.wifi.WifiHotspotManager
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+@RequiresApi(Build.VERSION_CODES.S) // Android 12+
 class ControllerViewModel(application: Application) : AndroidViewModel(application) {
+
+    companion object {
+        private const val TAG = "STS-CtrlVM"
+    }
 
     private val _devices = MutableLiveData<List<ConnectedDevice>>(emptyList())
     val devices: LiveData<List<ConnectedDevice>> = _devices
+
+    // WiFi klientek külön (TCP-n keresztül)
+    private val _wifiClients = MutableLiveData<List<WifiClient>>(emptyList())
+    val wifiClients: LiveData<List<WifiClient>> = _wifiClients
 
     private val _isLocked = MutableLiveData(false)
     val isLocked: LiveData<Boolean> = _isLocked
@@ -39,6 +56,10 @@ class ControllerViewModel(application: Application) : AndroidViewModel(applicati
     private var sessionTimestamp = ""
     private var photoCounter = 0
     private var serverStarted = false
+
+    // WiFi + TCP komponensek
+    private val wifiHotspotManager = WifiHotspotManager(application)
+    private lateinit var tcpServer: TcpServer
 
     private val btAdapter: BluetoothAdapter by lazy {
         @SuppressLint("MissingPermission")
@@ -76,7 +97,58 @@ class ControllerViewModel(application: Application) : AndroidViewModel(applicati
     fun startServer() {
         if (serverStarted) return
         serverStarted = true
-        btManager.startAccepting()
+
+        Log.d(TAG, "Szerver indítása WiFi + TCP üzemmódban")
+        _status.value = "WiFi hotspot indítása..."
+
+        // 1. WiFi hotspot indítása
+        wifiHotspotManager.startHotspot { success, message ->
+            Log.d(TAG, "Hotspot callback: $message")
+            _status.postValue(message)
+
+            if (success) {
+                // 2. TCP szerver indítása
+                Log.d(TAG, "TCP szerver indítása...")
+                initTcpServer()
+                tcpServer.start()
+            }
+        }
+    }
+
+    private fun initTcpServer() {
+        tcpServer = TcpServer(
+            port = 9999,
+            onClientConnected = { clientName, clientCount ->
+                Log.d(TAG, "✓ WiFi kliens csatlakozva: $clientName (összesen: $clientCount)")
+                // WiFi kliens hozzáadása a külön listához
+                val wifiClient = WifiClient(name = clientName)
+                val list = _wifiClients.value.orEmpty().toMutableList()
+                if (list.none { it.name == clientName }) {
+                    list.add(wifiClient)
+                    _wifiClients.postValue(list)
+                }
+                val totalClients = (_devices.value?.size ?: 0) + list.size
+                _status.postValue("$totalClients telefon csatlakozva")
+            },
+            onClientDisconnected = { clientName, clientCount ->
+                Log.d(TAG, "✗ WiFi kliens lecsatlakozott: $clientName")
+                val list = _wifiClients.value.orEmpty().filterNot { it.name == clientName }
+                _wifiClients.postValue(list)
+                _status.postValue("$clientName lecsatlakozott")
+            },
+            onPhotoReceived = { clientName, fileName, bytes ->
+                Log.d(TAG, "✓ Fotó fogadva: $fileName ($clientName, ${bytes.size} byte)")
+                saveReceivedPhoto(fileName, bytes)
+                val map = _transferStates.value.orEmpty().toMutableMap()
+                map[clientName] = TransferState(TransferStatus.DONE, 100)
+                _transferStates.postValue(map)
+                _status.postValue("$clientName képe megérkezett ✓")
+            },
+            onError = { message ->
+                Log.e(TAG, "TCP szerver hiba: $message")
+                _status.postValue("Szerver hiba: $message")
+            }
+        )
     }
 
     fun lockConnections() {
@@ -89,10 +161,21 @@ class ControllerViewModel(application: Application) : AndroidViewModel(applicati
         sessionTimestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
         photoCounter++
         val filename = "sts_${sessionTimestamp}_telefon1_${"%03d".format(photoCounter)}.jpg"
+
+        // Bluetooth klienteknek
         btManager.shootAll(sessionTimestamp, photoCounter)
+
+        // WiFi klienteknek (TCP-n keresztül)
+        if (::tcpServer.isInitialized) {
+            Log.d(TAG, "SHOOT parancs küldése WiFi klienseknek")
+            tcpServer.broadcastMessage("SHOOT|$sessionTimestamp|${"%03d".format(photoCounter)}")
+        }
+
         _status.value = "Fénykép készítése..."
-        val map = _devices.value.orEmpty().associate { it.name to TransferState(TransferStatus.SHOOTING, 0) }
-        _transferStates.value = map
+        // Mindkét típusú kliens státusza
+        val btMap = _devices.value.orEmpty().associate { it.name to TransferState(TransferStatus.SHOOTING, 0) }
+        val wifiMap = _wifiClients.value.orEmpty().associate { it.name to TransferState(TransferStatus.SHOOTING, 0) }
+        _transferStates.value = btMap + wifiMap
         return filename
     }
 
@@ -114,7 +197,22 @@ class ControllerViewModel(application: Application) : AndroidViewModel(applicati
     }
 
     fun disconnectAll() {
+        Log.d(TAG, "Szerver leállítása és hotspot kikapcsolása")
+
+        // TCP szerver leállítása
+        if (::tcpServer.isInitialized) {
+            tcpServer.broadcastMessage("DISCONNECT")
+            tcpServer.stop()
+        }
+
+        // WiFi hotspot kikapcsolása
+        wifiHotspotManager.stopHotspot { success, message ->
+            Log.d(TAG, "Hotspot leállítása: $message")
+        }
+
+        // Bluetooth leállítása (fallback)
         btManager.disconnectAll()
+
         _navigateToStart.value = true
     }
 
@@ -122,6 +220,19 @@ class ControllerViewModel(application: Application) : AndroidViewModel(applicati
 
     override fun onCleared() {
         super.onCleared()
+        Log.d(TAG, "ViewModel takarítás")
+
+        // Szerver leállítása
+        if (::tcpServer.isInitialized) {
+            tcpServer.stop()
+        }
+
+        // Hotspot kikapcsolása
+        if (wifiHotspotManager.isHotspotActive()) {
+            wifiHotspotManager.stopHotspot { _, _ -> }
+        }
+
+        // Bluetooth leállítása
         btManager.cleanup()
     }
 }
