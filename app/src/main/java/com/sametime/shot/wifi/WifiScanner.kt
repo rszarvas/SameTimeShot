@@ -37,6 +37,8 @@ class WifiScanner(private val context: Context) {
      */
     @SuppressLint("MissingPermission")
     fun connectToSameTimeShot(ssid: String = TARGET_SSID, password: String = TARGET_PASSWORD, onResult: (success: Boolean, message: String) -> Unit) {
+        var shouldUseReflection = true
+
         try {
             Log.d(TAG, "Csatlakozás a $ssid hálózathoz")
 
@@ -100,18 +102,21 @@ class WifiScanner(private val context: Context) {
             Log.d(TAG, "✓ Szimulált csatlakozás: $ssid (192.168.43.1:9999)")
             isConnected = true
             onResult(true, "Csatlakozva: $ssid (közvetlen TCP mode)")
+            return
         } catch (e: ClassNotFoundException) {
             // Az emulátorban a WiFi hálózat specifikáció API nem elérhető - szimulálunk
             Log.w(TAG, "⚠️ WiFi API nem elérhető (emulátor?), szimulált csatlakozás")
             Log.d(TAG, "✓ Szimulált csatlakozás: $ssid")
             isConnected = true
             onResult(true, "Csatlakozva: $ssid (test mode)")
+            return
         } catch (e: Exception) {
             Log.e(TAG, "Hiba a csatlakozás közben: ${e.javaClass.simpleName}", e)
-            // Fallback: ugyanúgy szimulálunk
+            // Fallback: szimulálunk
             Log.w(TAG, "⚠️ Fallback szimulált csatlakozásra")
             isConnected = true
             onResult(true, "Csatlakozva: $ssid (fallback mode)")
+            return
         }
     }
 
