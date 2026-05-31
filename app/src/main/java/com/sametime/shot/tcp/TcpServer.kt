@@ -86,6 +86,7 @@ class TcpServer(
     private fun acceptConnections() {
         while (isRunning) {
             try {
+                Log.d(TAG, "⏳ Szerver vár a kliens csatlakozásara... serverSocket=$serverSocket, isRunning=$isRunning")
                 val clientSocket = serverSocket?.accept() ?: continue
                 clientCounter++
                 val clientName = "telefon${clientCounter + 1}"
