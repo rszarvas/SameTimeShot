@@ -45,6 +45,8 @@ class TcpClient(
             Log.d(TAG, "Csatlakozás a szerverhez: $serverHost:$serverPort")
 
             socket = Socket(serverHost, serverPort)
+            Log.d(TAG, "✓ Socket sikeresen létrehozva: $socket")
+
             input = DataInputStream(socket!!.inputStream)
             output = DataOutputStream(socket!!.outputStream)
             reader = BufferedReader(InputStreamReader(socket!!.inputStream))
