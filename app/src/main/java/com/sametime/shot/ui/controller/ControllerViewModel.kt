@@ -26,7 +26,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-@RequiresApi(Build.VERSION_CODES.S) // Android 12+
+@RequiresApi(Build.VERSION_CODES.M) // Android 6+ (WiFi Local-Only Hotspot)
 class ControllerViewModel(application: Application) : AndroidViewModel(application) {
 
     companion object {

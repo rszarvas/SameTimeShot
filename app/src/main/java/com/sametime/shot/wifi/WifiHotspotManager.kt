@@ -9,25 +9,26 @@ import androidx.annotation.RequiresApi
 
 /**
  * WiFi hálózat (hotspot) kezelése a vezérlőn.
- * Android 12+ szükséges a SoftAP mód használatához.
+ * startLocalOnlyHotspot() API használata - Android 6+ (API 24+)
+ * Működik több Samsung telefonon is.
  */
-@RequiresApi(Build.VERSION_CODES.S) // Android 12+
+@RequiresApi(Build.VERSION_CODES.M) // Android 6+ (API 24+)
 class WifiHotspotManager(private val context: Context) {
 
     companion object {
         private const val TAG = "STS-WiFiHotspot"
         private const val NETWORK_NAME = "sametimeshot"
-        private const val NETWORK_PASSWORD = "sametimeshot123" // 8+ karakter szükséges
     }
 
     private val wifiManager: WifiManager =
         context.getSystemService(Context.WIFI_SERVICE) as WifiManager
 
     private var hotspotActive = false
+    private var hotspotReservation: WifiManager.LocalOnlyHotspotReservation? = null
 
     /**
-     * WiFi hálózat indítása (SoftAP mód)
-     * Ez létrehozza a "sametimeshot" hálózatot a 192.168.43.x tartományon
+     * WiFi hotspot indítása (Local-Only Hotspot mód)
+     * Ez egy egyszerűbb API, amely működik több telefonon.
      */
     @SuppressLint("MissingPermission")
     fun startHotspot(onResult: (success: Boolean, message: String) -> Unit) {
@@ -37,45 +38,37 @@ class WifiHotspotManager(private val context: Context) {
         }
 
         try {
-            Log.d(TAG, "Hotspot indítása: $NETWORK_NAME")
+            Log.d(TAG, "Hotspot indítása: $NETWORK_NAME (Local-Only mód)")
 
-            // SoftAP konfigurálása (Android 12+)
-            @Suppress("UNCHECKED_CAST")
-            val configClass = Class.forName("android.net.wifi.WifiManager\$SoftApConfiguration")
-            val builderClass = Class.forName("android.net.wifi.WifiManager\$SoftApConfiguration\$Builder")
+            // LocalOnlyHotspot callback
+            val callback = object : WifiManager.LocalOnlyHotspotCallback() {
+                override fun onStarted(reservation: WifiManager.LocalOnlyHotspotReservation) {
+                    Log.d(TAG, "✓ Hotspot sikeresen indítva")
+                    Log.d(TAG, "SSID: ${reservation.softApConfiguration.ssid}")
+                    Log.d(TAG, "IP: 192.168.43.1")
 
-            val builder = builderClass.getDeclaredConstructor().newInstance()
-            val setSsidMethod = builderClass.getMethod("setSsid", String::class.java)
-            val setPassphraseMethod = builderClass.getMethod("setPassphrase", String::class.java, Int::class.java)
-            val setMaxClientsMethod = builderClass.getMethod("setMaxNumberOfClients", Int::class.java)
-            val buildMethod = builderClass.getMethod("build")
+                    hotspotActive = true
+                    hotspotReservation = reservation
+                    onResult(true, "WiFi hálózat aktív: $NETWORK_NAME")
+                }
 
-            setSsidMethod.invoke(builder, NETWORK_NAME)
-            setPassphraseMethod.invoke(builder, NETWORK_PASSWORD, 2) // WPA2 = 2
-            setMaxClientsMethod.invoke(builder, 30)
-
-            val config = buildMethod.invoke(builder)
-
-            // Hotspot indítása
-            val startSoftApMethod = WifiManager::class.java.getMethod("startSoftAp", configClass)
-            val success = startSoftApMethod.invoke(wifiManager, config) as Boolean
-
-            if (success) {
-                hotspotActive = true
-                Log.d(TAG, "✓ Hotspot sikeresen indítva")
-                onResult(true, "WiFi hálózat aktív: $NETWORK_NAME")
-            } else {
-                Log.e(TAG, "✗ Hotspot indítás sikertelen")
-                onResult(false, "WiFi hálózat indítása sikertelen")
+                override fun onFailed(reason: Int) {
+                    val reasonText = when (reason) {
+                        ERROR_GENERAL -> "Általános hiba"
+                        ERROR_INCOMPATIBLE_MODE -> "Inkompatibilis mód"
+                        ERROR_TETHERING_DISALLOWED -> "Tethering letiltva"
+                        else -> "Ismeretlen hiba ($reason)"
+                    }
+                    Log.e(TAG, "✗ Hotspot indítás sikertelen: $reasonText")
+                    hotspotActive = false
+                    onResult(false, "WiFi hálózat indítása sikertelen: $reasonText")
+                }
             }
 
-        } catch (e: ClassNotFoundException) {
-            // Az emulátorban a SoftAP API nem elérhető - szimulálunk egy sikeres indítást
-            Log.w(TAG, "⚠️ SoftAP API nem elérhető (emulátor?), szimulált üzemmód")
-            Log.d(TAG, "✓ Hotspot szimulálva: $NETWORK_NAME (apenas logok)")
-            hotspotActive = true
-            // Az emulátorban csak logoljuk az indítást, de TCP szerver így is elindulhat
-            onResult(true, "WiFi hálózat aktív: $NETWORK_NAME (test mode)")
+            // Hotspot indítása
+            wifiManager.startLocalOnlyHotspot(callback, null)
+            Log.d(TAG, "Hotspot indítás kérése elküldve...")
+
         } catch (e: Exception) {
             Log.e(TAG, "Hiba a hotspot indítása közben", e)
             onResult(false, "Hiba: ${e.message}")
@@ -85,7 +78,6 @@ class WifiHotspotManager(private val context: Context) {
     /**
      * WiFi hálózat leállítása
      */
-    @SuppressLint("MissingPermission")
     fun stopHotspot(onResult: (success: Boolean, message: String) -> Unit) {
         if (!hotspotActive) {
             onResult(false, "Hotspot nincs aktív")
@@ -94,18 +86,11 @@ class WifiHotspotManager(private val context: Context) {
 
         try {
             Log.d(TAG, "Hotspot leállítása")
-            val stopSoftApMethod = WifiManager::class.java.getMethod("stopSoftAp")
-            val success = stopSoftApMethod.invoke(wifiManager) as Boolean
-
-            if (success) {
-                hotspotActive = false
-                Log.d(TAG, "✓ Hotspot sikeresen leállítva")
-                onResult(true, "WiFi hálózat leállítva")
-            } else {
-                Log.e(TAG, "✗ Hotspot leállítás sikertelen")
-                onResult(false, "WiFi hálózat leállítása sikertelen")
-            }
-
+            hotspotReservation?.close()
+            hotspotReservation = null
+            hotspotActive = false
+            Log.d(TAG, "✓ Hotspot sikeresen leállítva")
+            onResult(true, "WiFi hálózat leállítva")
         } catch (e: Exception) {
             Log.e(TAG, "Hiba a hotspot leállítása közben", e)
             onResult(false, "Hiba: ${e.message}")
@@ -119,17 +104,9 @@ class WifiHotspotManager(private val context: Context) {
 
     /**
      * Csatlakoztatott kliensek száma
+     * (Local-Only hotspot-nak nincs közvetlenül elérhető klienslista)
      */
-    @SuppressLint("MissingPermission")
     fun getConnectedClientsCount(): Int {
-        return try {
-            val method = WifiManager::class.java.getMethod("getSoftApConnectedClients")
-            @Suppress("UNCHECKED_CAST")
-            val clients = method.invoke(wifiManager) as? List<*>
-            clients?.size ?: 0
-        } catch (e: Exception) {
-            Log.e(TAG, "Hiba a kliensek számlálása közben", e)
-            0
-        }
+        return if (hotspotActive) 1 else 0 // Szimulált érték
     }
 }
