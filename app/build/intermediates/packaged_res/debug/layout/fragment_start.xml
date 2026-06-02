@@ -64,7 +64,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:text="Egyidejű fényképezés 2-8 telefonnal"
+            android:text="Egyidejű fényképezés több telefonnal"
             android:textSize="16sp"
             android:textColor="#CCFFFFFF"
             android:letterSpacing="0.03"
@@ -72,6 +72,19 @@
             android:shadowDx="0"
             android:shadowDy="1"
             android:shadowRadius="4" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="v1.1 - WiFi"
+            android:textSize="12sp"
+            android:textColor="#99FFFFFF"
+            android:letterSpacing="0.02"
+            android:shadowColor="#66000000"
+            android:shadowDx="0"
+            android:shadowDy="1"
+            android:shadowRadius="3" />
 
     </LinearLayout>
 
@@ -119,7 +132,7 @@
     <LinearLayout
         android:id="@+id/buttonContainer"
         android:layout_width="0dp"
-        android:layout_height="124dp"
+        android:layout_height="150dp"
         android:layout_marginHorizontal="12dp"
         android:layout_marginBottom="60dp"
         android:gravity="center_vertical"
@@ -132,7 +145,7 @@
         <LinearLayout
             android:id="@+id/btnController"
             android:layout_width="0dp"
-            android:layout_height="124dp"
+            android:layout_height="150dp"
             android:layout_marginEnd="10dp"
             android:layout_weight="1"
             android:background="@drawable/bg_button_primary"
@@ -151,21 +164,21 @@
                 android:textStyle="bold" />
 
             <TextView
-                android:layout_width="180dp"
-                android:layout_height="42dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
                 android:gravity="center"
                 android:lineSpacingMultiplier="1.2"
-                android:text="Ez a telefon vezérli az összes telefont"
+                android:text="Ez a telefon vezérli az összes KLIENS telefont"
                 android:textColor="@color/text_primary"
-                android:textSize="16sp" />
+                android:textSize="14sp" />
         </LinearLayout>
 
         <!-- Kliens gomb + szöveg -->
         <LinearLayout
             android:id="@+id/btnClient"
             android:layout_width="0dp"
-            android:layout_height="124dp"
+            android:layout_height="150dp"
             android:layout_marginStart="10dp"
             android:layout_weight="1"
             android:background="@drawable/bg_button_kliens"
@@ -191,21 +204,11 @@
                 android:lineSpacingMultiplier="1.2"
                 android:text="Csatlakozik a VEZÉRLŐ telefonhoz,\nautomatikusan fényképez"
                 android:textColor="#6535D8"
-                android:textSize="16sp" />
+                android:textSize="14sp" />
         </LinearLayout>
 
     </LinearLayout>
 
     <!-- Verzió -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="14dp"
-        android:text="v1.0"
-        android:textSize="11sp"
-        android:textColor="#66000000"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

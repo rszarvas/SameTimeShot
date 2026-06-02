@@ -10,7 +10,12 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
+import android.os.SystemClock
+import android.provider.Settings
 import android.util.Log
+import android.view.Choreographer
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -20,6 +25,9 @@ import com.sametime.shot.bluetooth.ClientBtManager
 import com.sametime.shot.tcp.TcpClient
 import com.sametime.shot.wifi.WifiScanner
 import kotlinx.coroutines.launch
+import java.net.DatagramPacket
+import java.net.DatagramSocket
+import java.net.InetAddress
 
 @RequiresApi(Build.VERSION_CODES.S) // Android 12+
 class ClientViewModel(application: Application) : AndroidViewModel(application) {
@@ -59,6 +67,8 @@ class ClientViewModel(application: Application) : AndroidViewModel(application) 
     // WiFi + TCP komponensek
     private val wifiScanner = WifiScanner(application)
     private var tcpClient: TcpClient? = null
+    private val mainHandler = Handler(Looper.getMainLooper())
+    private var pendingShootTime = 0L
 
     private val btAdapter: BluetoothAdapter by lazy {
         (application.getSystemService(BluetoothManager::class.java)).adapter
@@ -107,6 +117,64 @@ class ClientViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
+    fun openWifiSettings() {
+        try {
+            val intent = Intent(Settings.ACTION_WIFI_SETTINGS).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            }
+            getApplication<Application>().startActivity(intent)
+            Log.d(TAG, "WiFi beállítások megnyitva")
+        } catch (e: Exception) {
+            Log.e(TAG, "Hiba a WiFi beállítások megnyitásakor", e)
+            _status.postValue("Nem sikerült megnyitni a WiFi beállítások")
+        }
+    }
+
+    fun findAndConnectToServer() {
+        Log.d(TAG, "Szerver keresésének indítása...")
+        _status.value = "Szerver keresése..."
+
+        Thread {
+            try {
+                val udpSocket = DatagramSocket()
+                udpSocket.broadcast = true
+                udpSocket.soTimeout = 5000 // 5 másodperc timeout
+
+                // UDP broadcast küldés
+                val message = "FIND_SERVER".toByteArray()
+                val broadcastAddr = InetAddress.getByName("255.255.255.255")
+                val packet = DatagramPacket(message, message.size, broadcastAddr, 9998)
+
+                Log.d(TAG, "→ UDP broadcast küldés: FIND_SERVER")
+                udpSocket.send(packet)
+
+                // Válasz fogadása
+                val buffer = ByteArray(256)
+                val responsePacket = DatagramPacket(buffer, buffer.size)
+                udpSocket.receive(responsePacket)
+
+                val response = String(responsePacket.data, 0, responsePacket.length).trim()
+                Log.d(TAG, "← UDP válasz: $response")
+
+                if (response.startsWith("SERVER_HERE|")) {
+                    val serverIp = response.removePrefix("SERVER_HERE|")
+                    Log.d(TAG, "✓ Szerver IP megtalálva: $serverIp")
+
+                    // TCP csatlakozás az IP-hez
+                    connectToServerViaIp(serverIp)
+                } else {
+                    Log.w(TAG, "Érvénytelen válasz: $response")
+                    _status.postValue("Szerver nem válaszol")
+                }
+
+                udpSocket.close()
+            } catch (e: Exception) {
+                Log.e(TAG, "Szerver keresési hiba", e)
+                _status.postValue("Szerver keresési hiba: ${e.message}")
+            }
+        }.start()
+    }
+
     @SuppressLint("MissingPermission")
     fun startDiscovery() {
         Log.d(TAG, "WiFi hotspot keresésének indítása")
@@ -129,6 +197,25 @@ class ClientViewModel(application: Application) : AndroidViewModel(application) 
                     _status.postValue("Hotspot hálózat nem található. Próbálja később.")
                     _isDiscovering.postValue(false)
                 }
+            }
+        }
+    }
+
+    /**
+     * Csatlakozás a szerverhez egy adott IP-n keresztül
+     */
+    private fun connectToServerViaIp(serverIp: String) {
+        Log.d(TAG, "TCP csatlakozás: $serverIp:9999")
+        _status.postValue("Csatlakozás a szerverhez...")
+
+        initTcpClient(serverIp)
+        viewModelScope.launch {
+            val connected = tcpClient?.connect() ?: false
+            if (connected) {
+                Log.d(TAG, "✓ TCP-n csatlakozva")
+            } else {
+                Log.e(TAG, "✗ TCP csatlakozási hiba")
+                _status.postValue("TCP csatlakozási hiba")
             }
         }
     }
@@ -167,9 +254,9 @@ class ClientViewModel(application: Application) : AndroidViewModel(application) 
     /**
      * TCP kliens inicializálása
      */
-    private fun initTcpClient() {
+    private fun initTcpClient(serverHost: String = "192.168.43.1") {
         tcpClient = TcpClient(
-            serverHost = "192.168.43.1",
+            serverHost = serverHost,
             serverPort = 9999,
             onConnected = { clientName ->
                 Log.d(TAG, "✓ Szrverre csatlakozva: $clientName")
@@ -187,13 +274,28 @@ class ClientViewModel(application: Application) : AndroidViewModel(application) 
             onMessageReceived = { message ->
                 Log.d(TAG, "← Üzenet: $message")
                 when {
+                    message == "LOCK" -> {
+                        Log.d(TAG, "✓ LOCK parancs megkapva – kamera képernyő")
+                        _isLocked.postValue(true)
+                        _status.postValue("Kamera aktív – várakozik a fotójelre")
+                    }
                     message.startsWith("SHOOT|") -> {
                         val parts = message.split("|")
-                        if (parts.size >= 3) {
+                        if (parts.size >= 4) {
                             val timestamp = parts[1]
                             val counter = parts[2]
-                            _isLocked.postValue(true)
-                            _status.postValue("Fotó készítés – várja a vezérlőt")
+                            val shootTime = parts[3].toLongOrNull() ?: 0L
+
+                            Log.d(TAG, "SHOOT parancs: timestamp=$timestamp, counter=$counter, shootTime=$shootTime (Choreographer sync)")
+                            _status.postValue("Fotó készítés – Choreographer szinkronizáció")
+
+                            // Choreographer-hez kötött szinkronizáció a pontosabb exponáláshoz
+                            pendingShootTime = shootTime
+                            scheduleShootWithChoreographer(shootTime, Pair(timestamp, counter))
+                        } else if (parts.size >= 3) {
+                            // Régi formátum kompatibilitás
+                            val timestamp = parts[1]
+                            val counter = parts[2]
                             _shootEvent.postValue(Pair(timestamp, counter))
                         }
                     }
@@ -261,9 +363,71 @@ class ClientViewModel(application: Application) : AndroidViewModel(application) 
     fun onShootHandled() { _shootEvent.value = null }
     fun onNavigatedToStart() { _navigateToStart.value = false }
 
+    /**
+     * Busy-wait szinkronizáció az utolsó milliszekundumban
+     * Az utolsó 20-30ms-ben aktívan várunk az exponálásra, nem callback-re
+     */
+    private fun scheduleShootWithChoreographer(shootTime: Long, shootData: Pair<String, String>) {
+        val now = System.currentTimeMillis()
+        val delayMs = shootTime - now
+
+        if (delayMs <= 0) {
+            // Azonnal
+            Log.d(TAG, "SHOOT azonnal (delay <= 0)")
+            _shootEvent.postValue(shootData)
+        } else if (delayMs <= 30) {
+            // Nagyon rövid delay - busy-wait az exponálásra
+            Log.d(TAG, "SHOOT busy-wait: delayMs=$delayMs")
+            viewModelScope.launch {
+                // Busy-wait az utolsó milliszekundumig
+                val startNano = System.nanoTime()
+                val delayNano = delayMs * 1_000_000L
+                while (System.nanoTime() - startNano < delayNano) {
+                    // Aktív várakozás
+                }
+                Log.d(TAG, "Busy-wait vége – exponálás now!")
+                _shootEvent.postValue(shootData)
+            }
+        } else if (delayMs <= 100) {
+            // Rövid delay - postDelayed + busy-wait az utolsó 20ms-ben
+            Log.d(TAG, "SHOOT postDelayed + busy-wait: delayMs=$delayMs")
+            mainHandler.postDelayed({
+                // Busy-wait az utolsó 20ms-ben
+                val shootTimeNano = shootTime * 1_000_000L
+                val nowNano = System.currentTimeMillis() * 1_000_000L
+                val remainNano = shootTimeNano - nowNano
+                if (remainNano > 0) {
+                    val startNano = System.nanoTime()
+                    while (System.nanoTime() - startNano < remainNano) {
+                        // Aktív várakozás
+                    }
+                }
+                Log.d(TAG, "Busy-wait vége – exponálás now!")
+                _shootEvent.postValue(shootData)
+            }, (delayMs - 20).coerceAtLeast(0L))
+        } else {
+            // Hosszabb delay - postDelayed a shootTime előtt 20ms-el, majd busy-wait
+            Log.d(TAG, "SHOOT postDelayed + busy-wait: delayMs=$delayMs")
+            mainHandler.postDelayed({
+                // Busy-wait az utolsó 20ms-ben
+                val shootTimeNano = shootTime * 1_000_000L
+                val startNano = System.nanoTime()
+                val targetNano = startNano + (shootTimeNano - System.currentTimeMillis() * 1_000_000L)
+                while (System.nanoTime() < targetNano) {
+                    // Aktív várakozás
+                }
+                Log.d(TAG, "Busy-wait vége – exponálás most!")
+                _shootEvent.postValue(shootData)
+            }, (delayMs - 20).coerceAtLeast(0L))
+        }
+    }
+
     override fun onCleared() {
         super.onCleared()
         Log.d(TAG, "ViewModel takarítás")
+
+        // Handler callback-ek törlése
+        mainHandler.removeCallbacksAndMessages(null)
 
         // TCP szever lecsatlakoztatása
         tcpClient?.disconnect()

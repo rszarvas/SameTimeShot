@@ -41,7 +41,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="v1.0"
+            android:text="v1.1 - WiFi"
             android:textColor="@color/text_secondary"
             android:textSize="12sp" />
 
@@ -75,10 +75,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="20dp"
-                android:text="📷  Egyidejű fényképezés – egyszerre akár 8 telefonnal, ugyanabban az ezredmásodpercben."
-                android:textSize="19sp"
+                android:text="📷  Egyidejű fényképezés - WiFi-n keresztül, akár több telefonnal is, tökéletesen szinkronizálva, ugyanabban az ezredmásodpercben."
+                android:textSize="18sp"
                 android:textColor="@color/text_secondary"
-                android:lineSpacingMultiplier="1.5" />
+                android:lineSpacingMultiplier="1.55" />
 
             <!-- ── AZ ÖTLET HÁTTERE ── -->
             <LinearLayout
@@ -104,11 +104,11 @@
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
                     android:orientation="vertical" android:padding="16dp">
                     <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
-                        android:text="🐕  A SameTime Shot egy különleges kihívás megoldására lett megalkotva: olyan alanyok 3D modelljének elkészítése, amelyek egyetlen pillanatot sem tudnak nyugton maradni – így hagyományos fényképezéssel szinte lehetetlen lenne jó eredményt elérni."
+                        android:text="🐕  A SameTime Shot egy különleges kihívás megoldására lett megalkotva: olyan alanyok 3D modelljének elkészítése, amelyek egyetlen pillanatot sem tudnak nyugton maradni - így hagyományos fényképezéssel szinte lehetetlen lenne jó eredményt elérni."
                         android:textSize="18sp" android:textColor="@color/text_secondary"
                         android:lineSpacingMultiplier="1.55" android:layout_marginBottom="12dp"/>
                     <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
-                        android:text="💡  A megoldás: ha minden kamera ugyanabban a pillanatban exponál, az alany bármilyen pózban legyen, a képek mégis tökéletesen szinkronizáltak – és ebből máris elkészíthető a 3D modell."
+                        android:text="💡  A megoldás: ha minden kamera ugyanabban a pillanatban exponál, az alany bármilyen pózban legyen, a képek mégis tökéletesen szinkronizáltak - és ebből máris elkészíthető a 3D modell."
                         android:textSize="18sp" android:textColor="@color/text_secondary"
                         android:lineSpacingMultiplier="1.55"/>
                 </LinearLayout>
@@ -139,8 +139,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="14dp"
-                        android:lineSpacingMultiplier="1.5"
-                        android:text="A különböző szögekből, azonos pillanatban készített képekből kiváló minőségű 3D modellek hozhatók létre – például Luma AI, Polycam, RealityCapture vagy más fotogrammetria eszközökkel."
+                        android:lineSpacingMultiplier="1.55"
+                        android:text="A különböző szögekből, azonos pillanatban készített képekből kiváló minőségű 3D modellek hozhatók létre - például Luma AI, Polycam, RealityCapture vagy más fotogrammetria eszközökkel."
                         android:textColor="@color/text_secondary"
                         android:textSize="18sp" />
 
@@ -148,8 +148,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="8dp"
-                        android:lineSpacingMultiplier="1.5"
-                        android:text="🐾  Mozgó állatok – A szinkron exponálás megszünteti a mozgásból eredő elmosódást és torzítást."
+                        android:lineSpacingMultiplier="1.55"
+                        android:text="🐾  Mozgó állatok - A szinkron exponálás megszünteti a mozgásból eredő elmosódást és torzítást."
                         android:textColor="@color/text_secondary"
                         android:textSize="18sp" />
 
@@ -157,16 +157,16 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="8dp"
-                        android:lineSpacingMultiplier="1.5"
-                        android:text="🧸  Tárgyak, szobrok – Precíz, részletgazdag 3D másolatok elkészítéséhez."
+                        android:lineSpacingMultiplier="1.55"
+                        android:text="🧸  Tárgyak, szobrok - Precíz, részletgazdag 3D másolatok elkészítéséhez."
                         android:textColor="@color/text_secondary"
                         android:textSize="18sp" />
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:lineSpacingMultiplier="1.5"
-                        android:text="👤  Emberek – Portré vagy egész alakos 3D scan pillanatok alatt."
+                        android:lineSpacingMultiplier="1.55"
+                        android:text="👤  Emberek - Portré vagy egész alakos 3D scan pillanatok alatt."
                         android:textColor="@color/text_secondary"
                         android:textSize="18sp" />
                 </LinearLayout>
@@ -182,6 +182,15 @@
                     android:textSize="20sp" android:textStyle="bold" android:textColor="@color/text_primary"/>
             </LinearLayout>
 
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:lineSpacingMultiplier="1.55"
+                android:text="⚙️  Első lépésként a vezérlő telefon beállításaiban hozz létre egy WiFi hotspot-ot. A kliens telefonoknak ezt a hotspot-ot kell választaniuk és csatlakozniuk hozzá. Ez biztosítja a szinkron exponáláshoz szükséges stabil WiFi kapcsolatot."
+                android:textColor="@color/text_secondary"
+                android:textSize="18sp" />
+
             <androidx.cardview.widget.CardView android:layout_width="match_parent"
                 android:layout_height="wrap_content" android:layout_marginBottom="24dp"
                 app:cardBackgroundColor="@color/bg_card" app:cardCornerRadius="14dp" app:cardElevation="0dp">
@@ -192,8 +201,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="10dp"
-                        android:lineSpacingMultiplier="1.5"
-                        android:text="① 📡  Válaszd ki a vezérlő telefont – ez kezeli a kapcsolatokat és itt van az exponáló gomb."
+                        android:lineSpacingMultiplier="1.55"
+                        android:text="① 📡  Válaszd ki a vezérlő telefont - ez kezeli a kapcsolatokat és itt van az exponáló gomb. Hozz létre egy WiFi hotspot-ot a telefonon, és jegyezd meg annak nevét és jelszavát."
                         android:textColor="@color/text_secondary"
                         android:textSize="18sp" />
 
@@ -201,8 +210,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="10dp"
-                        android:lineSpacingMultiplier="1.5"
-                        android:text="② 📱  A többi telefon kliens módban fut – csatlakoznak a vezérlőhöz Bluetooth-on. A csatlakozás sorrendje adja meg a nevüket: Telefon 2, Telefon 3..."
+                        android:lineSpacingMultiplier="1.55"
+                        android:text="② 📱  A többi telefon kliens módban fut - csatlakoznak a vezérlőhöz WiFi-n keresztül. A csatlakozás sorrendje adja meg a nevüket: Telefon 2, Telefon 3..."
                         android:textColor="@color/text_secondary"
                         android:textSize="18sp" />
 
@@ -210,8 +219,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="10dp"
-                        android:lineSpacingMultiplier="1.5"
-                        android:text="③ 🔒  Amikor minden telefon csatlakozott, a vezérlőn nyomj a &quot;Kapcsolatok véglegesítése&quot; gombra – ekkor minden telefonon beindul a kamera élőkép."
+                        android:lineSpacingMultiplier="1.55"
+                        android:text="③ 🔒  Amikor minden telefon csatlakozott, a vezérlőn nyomj a &quot;Kapcsolatok véglegesítése&quot; gombra - ekkor minden telefonon beindul a kamera élőkép."
                         android:textColor="@color/text_secondary"
                         android:textSize="18sp" />
 
@@ -219,8 +228,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="10dp"
-                        android:lineSpacingMultiplier="1.5"
-                        android:text="④ 📸  Nyomd meg az exponáló gombot a vezérlőn – az összes telefon egyszerre készít képet!"
+                        android:lineSpacingMultiplier="1.55"
+                        android:text="④ 📸  Nyomd meg az exponáló gombot a vezérlőn - az összes telefon egyszerre készít képet!"
                         android:textColor="@color/text_secondary"
                         android:textSize="18sp" />
 
@@ -228,15 +237,15 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="10dp"
-                        android:lineSpacingMultiplier="1.5"
-                        android:text="⑤ 📤  A kliens telefonok automatikusan elküldik a képeket a vezérlőnek Bluetooth-on."
+                        android:lineSpacingMultiplier="1.55"
+                        android:text="⑤ 📤  A kliens telefonok automatikusan elküldik a képeket a vezérlőnek WiFi-n keresztül. Az összes kép átmásolható a vezérlő telefonról arra az eszközre, amin majd a 3D modell készül."
                         android:textColor="@color/text_secondary"
                         android:textSize="18sp" />
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:lineSpacingMultiplier="1.5"
+                        android:lineSpacingMultiplier="1.55"
                         android:text="⑥ 🖼️  A vezérlőn a Galéria gombbal megnézheted az összes elkészült képsorozatot."
                         android:textColor="@color/text_secondary"
                         android:textSize="18sp" />
@@ -263,7 +272,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="8dp"
-                        android:text="📶  Kapcsolat:  Classic Bluetooth (RFCOMM)"
+                        android:text="📶  Kapcsolat:  WiFi (Local-Only Hotspot + TCP/IP)"
                         android:textColor="@color/text_secondary"
                         android:textSize="18sp" />
 
@@ -271,7 +280,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="8dp"
-                        android:text="📱  Max eszköz:  1 vezérlő + 7 kliens = 8 telefon"
+                        android:text="📱  Max eszköz:  1 vezérlő + több kliens (hálózat méretétől függően)"
                         android:textColor="@color/text_secondary"
                         android:textSize="18sp" />
 
@@ -279,7 +288,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="8dp"
-                        android:text="⏱️  Szinkron késleltetés:  10–50 ms"
+                        android:text="⏱️  Szinkron késleltetés:  10-50 ms"
                         android:textColor="@color/text_secondary"
                         android:textSize="18sp" />
 
@@ -328,8 +337,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="12dp"
-                        android:lineSpacingMultiplier="1.5"
-                        android:text="Van ötleted, észrevételed vagy hibát találtál? Írj bátran – minden visszajelzést szívesen fogadok! 🙌"
+                        android:lineSpacingMultiplier="1.55"
+                        android:text="Van ötleted, észrevételed vagy hibát találtál? Írj bátran - minden visszajelzést szívesen fogadok! 🙌"
                         android:textColor="@color/text_secondary"
                         android:textSize="18sp" />
                     <TextView
@@ -337,7 +346,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="✉️  szarvasrichard@gmail.com"
-                        android:textSize="14sp"
+                        android:textSize="18sp"
                         android:textStyle="bold"
                         android:textColor="@color/accent"
                         android:paddingVertical="8dp" />

@@ -41,7 +41,7 @@ class GalleryFragment : Fragment() {
                 findNavController().navigate(R.id.action_galleryFragment_to_photoViewerFragment, bundle)
             },
             onDeleteClick = { session ->
-                AlertDialog.Builder(requireContext())
+                val dialog = AlertDialog.Builder(requireContext())
                     .setTitle("Sorozat törlése")
                     .setMessage(
                         "Biztosan törli a(z) ${session.displayDate} sorozatot?\n" +
@@ -50,6 +50,27 @@ class GalleryFragment : Fragment() {
                     .setPositiveButton("Törlés") { _, _ -> vm.deleteSession(session) }
                     .setNegativeButton("Mégse", null)
                     .show()
+
+                // Fehér háttér, lekerekítés és sötétszürke szöveg
+                dialog.window?.setBackgroundDrawableResource(R.drawable.bg_rounded_white)
+
+                // DecorView-ben keresni az összes TextView-t
+                val decorView = dialog.window?.decorView
+                val textViews = mutableListOf<android.widget.TextView>()
+                fun findTextViews(view: android.view.View) {
+                    if (view is android.widget.TextView) {
+                        textViews.add(view)
+                    }
+                    if (view is android.view.ViewGroup) {
+                        for (i in 0 until view.childCount) {
+                            findTextViews(view.getChildAt(i))
+                        }
+                    }
+                }
+                if (decorView != null) {
+                    findTextViews(decorView)
+                    textViews.forEach { it.setTextColor(android.graphics.Color.parseColor("#333333")) }
+                }
             }
         )
 

@@ -2,6 +2,8 @@ package com.sametime.shot.camera
 
 import android.content.ContentValues
 import android.content.Context
+import android.media.ToneGenerator
+import android.media.AudioManager
 import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
@@ -20,9 +22,29 @@ class CameraHelper(private val context: Context) {
 
     private var imageCapture: ImageCapture? = null
     private val executor = Executors.newSingleThreadExecutor()
+    private lateinit var toneGenerator: ToneGenerator
 
     companion object {
         private const val TAG = "STS-Camera"
+    }
+
+    init {
+        try {
+            toneGenerator = ToneGenerator(AudioManager.STREAM_MUSIC, 100)
+        } catch (e: Exception) {
+            Log.e(TAG, "ToneGenerator inicializálása sikertelen: ${e.message}")
+        }
+    }
+
+    fun playShutterSound() {
+        try {
+            if (::toneGenerator.isInitialized) {
+                // Kamera shutter-szerű hang: magas biep
+                toneGenerator.startTone(ToneGenerator.TONE_CDMA_ALERT_CALL_GUARD, 150)
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Shutter hang lejátszása sikertelen: ${e.message}")
+        }
     }
 
     fun startCamera(previewView: PreviewView, lifecycleOwner: LifecycleOwner) {
@@ -79,6 +101,8 @@ class CameraHelper(private val context: Context) {
             object : ImageCapture.OnImageSavedCallback {
                 override fun onImageSaved(out: ImageCapture.OutputFileResults) {
                     Log.d(TAG, "Kép mentve: $filename, uri=${out.savedUri}")
+                    // Shutter hang az exponálás pillanatában
+                    playShutterSound()
                     onDone(true)
                 }
                 override fun onError(e: ImageCaptureException) {
@@ -102,6 +126,8 @@ class CameraHelper(private val context: Context) {
         capture.takePicture(executor, object : ImageCapture.OnImageCapturedCallback() {
             override fun onCaptureSuccess(image: ImageProxy) {
                 Log.d(TAG, "Kép elkészítve – méret: ${image.planes[0].buffer.remaining()} bájt, format=${image.format}")
+                // Shutter hang az exponálás pillanatában
+                playShutterSound()
                 val buffer = image.planes[0].buffer
                 val bytes = ByteArray(buffer.remaining())
                 buffer.get(bytes)
@@ -121,6 +147,13 @@ class CameraHelper(private val context: Context) {
 
     fun shutdown() {
         Log.d(TAG, "CameraHelper leállítva")
+        try {
+            if (::toneGenerator.isInitialized) {
+                toneGenerator.release()
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "ToneGenerator felszabadítása sikertelen: ${e.message}")
+        }
         executor.shutdown()
     }
 }

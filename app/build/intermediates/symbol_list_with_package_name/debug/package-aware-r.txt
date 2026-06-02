@@ -3082,8 +3082,10 @@ drawable bg_count_badge
 drawable bg_delete_btn
 drawable bg_icon_button
 drawable bg_info_button
+drawable bg_rounded_white
 drawable bg_shutter_button
 drawable bg_telefon1_badge
+drawable bg_toast
 drawable bg_warning_banner
 drawable btn_checkbox_checked_mtrl
 drawable btn_checkbox_checked_to_unchecked_mtrl_animation
@@ -3316,17 +3318,19 @@ id bounceEnd
 id bounceStart
 id btnBack
 id btnClient
+id btnConnectToWiFi
 id btnController
 id btnDelete
 id btnExit
+id btnFindServer
 id btnGallery
 id btnInfo
 id btnInfoBack
 id btnLock
 id btnNext
 id btnPrev
-id btnRefresh
 id btnShoot
+id btnStartHotspot
 id btnViewerBack
 id buttonContainer
 id buttonPanel
@@ -3492,6 +3496,7 @@ id layout
 id layoutCamera
 id layoutConnected
 id layoutDiscovery
+id layoutHotspotActive
 id layoutPostLock
 id layoutPreLock
 id layoutSendProgress
@@ -3618,6 +3623,7 @@ id parent_matrix
 id password_toggle
 id path
 id pathRelative
+id pbTransfer
 id peekHeight
 id percent
 id performance
@@ -3644,6 +3650,7 @@ id right_side
 id rounded
 id row_index_key
 id rtl
+id rvConnectedDevices
 id rvDevices
 id rvDevicesOverlay
 id rvSessions
@@ -3748,6 +3755,7 @@ id title
 id titleArea
 id titleDividerNoCustom
 id title_template
+id toast_layout_root
 id toggle
 id top
 id topOverlay
@@ -3774,6 +3782,8 @@ id tvDeviceName
 id tvDeviceStatus
 id tvEmpty
 id tvEmptyHint
+id tvHotspotWaitingMessage
+id tvInstructions
 id tvMyName
 id tvPhotoCount
 id tvProgressPercent
@@ -3926,6 +3936,7 @@ layout abc_select_dialog_material
 layout abc_tooltip
 layout activity_main
 layout custom_dialog
+layout custom_toast
 layout design_bottom_navigation_item
 layout design_bottom_sheet_dialog
 layout design_layout_snackbar
@@ -3949,6 +3960,7 @@ layout fragment_photo_viewer
 layout fragment_start
 layout ime_base_split_test_activity
 layout ime_secondary_split_test_activity
+layout item_connected_device
 layout item_device
 layout item_discovered_device
 layout item_gallery_session

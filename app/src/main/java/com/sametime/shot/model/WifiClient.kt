@@ -6,5 +6,6 @@ package com.sametime.shot.model
  */
 data class WifiClient(
     val name: String,
+    val type: String? = null,  // telefon típusa/modellje (WiFi klienseken nem mindig elérhető)
     var transferStatus: TransferStatus = TransferStatus.IDLE
 )

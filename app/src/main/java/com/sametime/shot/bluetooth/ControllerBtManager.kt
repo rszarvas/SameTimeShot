@@ -62,7 +62,8 @@ class ControllerBtManager(
                 name = phoneName,
                 socket = socket,
                 outputStream = socket.outputStream,
-                inputStream = socket.inputStream
+                inputStream = socket.inputStream,
+                type = getDeviceType(socket.remoteDevice.name)
             )
             val line = BtProtocol.readLine(device.inputStream)
             if (line == null || !line.startsWith(BtProtocol.CMD_HELLO)) {
@@ -170,6 +171,19 @@ class ControllerBtManager(
         synchronized(clients) {
             clients.forEach { runCatching { it.socket.close() } }
             clients.clear()
+        }
+    }
+
+    /**
+     * Telefon típusának lekérdezése
+     * Ha a BT eszköz neve tartalmaz típus infót (pl. "Samsung SM-A605FN"), azt használjuk
+     */
+    private fun getDeviceType(deviceName: String?): String? {
+        return if (deviceName.isNullOrBlank()) {
+            null
+        } else {
+            // Ha van már típus info az eszköznévben (pl. "Samsung SM-A605FN")
+            deviceName
         }
     }
 }

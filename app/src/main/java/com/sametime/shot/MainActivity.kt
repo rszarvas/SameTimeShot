@@ -12,6 +12,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.sametime.shot.databinding.ActivityMainBinding
+import com.sametime.shot.utils.ToastUtils
 
 class MainActivity : AppCompatActivity() {
 
@@ -25,7 +26,7 @@ class MainActivity : AppCompatActivity() {
         ActivityResultContracts.RequestMultiplePermissions()
     ) { results ->
         if (results.values.any { !it }) {
-            Toast.makeText(this, "Szükséges engedélyek hiányoznak!", Toast.LENGTH_LONG).show()
+            ToastUtils.showCustomToast(this, "Szükséges engedélyek hiányoznak!", Toast.LENGTH_LONG)
         }
     }
 
@@ -69,7 +70,7 @@ class MainActivity : AppCompatActivity() {
     fun ensureBluetoothEnabled(onEnabled: () -> Unit) {
         val adapter = bluetoothAdapter
         if (adapter == null) {
-            Toast.makeText(this, "Ez az eszköz nem támogatja a Bluetooth-t.", Toast.LENGTH_LONG).show()
+            ToastUtils.showCustomToast(this, "Ez az eszköz nem támogatja a Bluetooth-t.", Toast.LENGTH_LONG)
             return
         }
         if (!adapter.isEnabled) {

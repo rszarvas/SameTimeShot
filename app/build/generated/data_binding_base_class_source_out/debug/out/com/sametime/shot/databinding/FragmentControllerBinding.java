@@ -36,10 +36,16 @@ public final class FragmentControllerBinding implements ViewBinding {
   public final Button btnShoot;
 
   @NonNull
+  public final Button btnStartHotspot;
+
+  @NonNull
   public final LinearLayout camHudBottom;
 
   @NonNull
   public final PreviewView cameraPreview;
+
+  @NonNull
+  public final LinearLayout layoutHotspotActive;
 
   @NonNull
   public final ConstraintLayout layoutPostLock;
@@ -51,7 +57,7 @@ public final class FragmentControllerBinding implements ViewBinding {
   public final LinearLayout layoutTransferWarning;
 
   @NonNull
-  public final RecyclerView rvDevices;
+  public final RecyclerView rvConnectedDevices;
 
   @NonNull
   public final RecyclerView rvDevicesOverlay;
@@ -63,34 +69,41 @@ public final class FragmentControllerBinding implements ViewBinding {
   public final TextView tvDeviceCount;
 
   @NonNull
-  public final TextView tvStatus;
+  public final TextView tvHotspotWaitingMessage;
+
+  @NonNull
+  public final TextView tvInstructions;
 
   @NonNull
   public final TextView tvStatusOverlay;
 
   private FragmentControllerBinding(@NonNull ConstraintLayout rootView, @NonNull Button btnExit,
       @NonNull Button btnGallery, @NonNull Button btnLock, @NonNull Button btnShoot,
-      @NonNull LinearLayout camHudBottom, @NonNull PreviewView cameraPreview,
+      @NonNull Button btnStartHotspot, @NonNull LinearLayout camHudBottom,
+      @NonNull PreviewView cameraPreview, @NonNull LinearLayout layoutHotspotActive,
       @NonNull ConstraintLayout layoutPostLock, @NonNull LinearLayout layoutPreLock,
-      @NonNull LinearLayout layoutTransferWarning, @NonNull RecyclerView rvDevices,
+      @NonNull LinearLayout layoutTransferWarning, @NonNull RecyclerView rvConnectedDevices,
       @NonNull RecyclerView rvDevicesOverlay, @NonNull LinearLayout topOverlay,
-      @NonNull TextView tvDeviceCount, @NonNull TextView tvStatus,
-      @NonNull TextView tvStatusOverlay) {
+      @NonNull TextView tvDeviceCount, @NonNull TextView tvHotspotWaitingMessage,
+      @NonNull TextView tvInstructions, @NonNull TextView tvStatusOverlay) {
     this.rootView = rootView;
     this.btnExit = btnExit;
     this.btnGallery = btnGallery;
     this.btnLock = btnLock;
     this.btnShoot = btnShoot;
+    this.btnStartHotspot = btnStartHotspot;
     this.camHudBottom = camHudBottom;
     this.cameraPreview = cameraPreview;
+    this.layoutHotspotActive = layoutHotspotActive;
     this.layoutPostLock = layoutPostLock;
     this.layoutPreLock = layoutPreLock;
     this.layoutTransferWarning = layoutTransferWarning;
-    this.rvDevices = rvDevices;
+    this.rvConnectedDevices = rvConnectedDevices;
     this.rvDevicesOverlay = rvDevicesOverlay;
     this.topOverlay = topOverlay;
     this.tvDeviceCount = tvDeviceCount;
-    this.tvStatus = tvStatus;
+    this.tvHotspotWaitingMessage = tvHotspotWaitingMessage;
+    this.tvInstructions = tvInstructions;
     this.tvStatusOverlay = tvStatusOverlay;
   }
 
@@ -145,6 +158,12 @@ public final class FragmentControllerBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.btnStartHotspot;
+      Button btnStartHotspot = ViewBindings.findChildViewById(rootView, id);
+      if (btnStartHotspot == null) {
+        break missingId;
+      }
+
       id = R.id.camHudBottom;
       LinearLayout camHudBottom = ViewBindings.findChildViewById(rootView, id);
       if (camHudBottom == null) {
@@ -154,6 +173,12 @@ public final class FragmentControllerBinding implements ViewBinding {
       id = R.id.cameraPreview;
       PreviewView cameraPreview = ViewBindings.findChildViewById(rootView, id);
       if (cameraPreview == null) {
+        break missingId;
+      }
+
+      id = R.id.layoutHotspotActive;
+      LinearLayout layoutHotspotActive = ViewBindings.findChildViewById(rootView, id);
+      if (layoutHotspotActive == null) {
         break missingId;
       }
 
@@ -175,9 +200,9 @@ public final class FragmentControllerBinding implements ViewBinding {
         break missingId;
       }
 
-      id = R.id.rvDevices;
-      RecyclerView rvDevices = ViewBindings.findChildViewById(rootView, id);
-      if (rvDevices == null) {
+      id = R.id.rvConnectedDevices;
+      RecyclerView rvConnectedDevices = ViewBindings.findChildViewById(rootView, id);
+      if (rvConnectedDevices == null) {
         break missingId;
       }
 
@@ -199,9 +224,15 @@ public final class FragmentControllerBinding implements ViewBinding {
         break missingId;
       }
 
-      id = R.id.tvStatus;
-      TextView tvStatus = ViewBindings.findChildViewById(rootView, id);
-      if (tvStatus == null) {
+      id = R.id.tvHotspotWaitingMessage;
+      TextView tvHotspotWaitingMessage = ViewBindings.findChildViewById(rootView, id);
+      if (tvHotspotWaitingMessage == null) {
+        break missingId;
+      }
+
+      id = R.id.tvInstructions;
+      TextView tvInstructions = ViewBindings.findChildViewById(rootView, id);
+      if (tvInstructions == null) {
         break missingId;
       }
 
@@ -212,8 +243,9 @@ public final class FragmentControllerBinding implements ViewBinding {
       }
 
       return new FragmentControllerBinding((ConstraintLayout) rootView, btnExit, btnGallery,
-          btnLock, btnShoot, camHudBottom, cameraPreview, layoutPostLock, layoutPreLock,
-          layoutTransferWarning, rvDevices, rvDevicesOverlay, topOverlay, tvDeviceCount, tvStatus,
+          btnLock, btnShoot, btnStartHotspot, camHudBottom, cameraPreview, layoutHotspotActive,
+          layoutPostLock, layoutPreLock, layoutTransferWarning, rvConnectedDevices,
+          rvDevicesOverlay, topOverlay, tvDeviceCount, tvHotspotWaitingMessage, tvInstructions,
           tvStatusOverlay);
     }
     String missingId = rootView.getResources().getResourceName(id);

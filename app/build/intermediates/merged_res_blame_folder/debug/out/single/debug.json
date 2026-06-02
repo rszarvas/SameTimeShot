@@ -72,6 +72,10 @@
         "source": "com.sametime.shot.app-main-57:/layout/fragment_photo_viewer.xml"
     },
     {
+        "merged": "com.sametime.shot.app-merged_res-55:/layout_item_connected_device.xml.flat",
+        "source": "com.sametime.shot.app-main-57:/layout/item_connected_device.xml"
+    },
+    {
         "merged": "com.sametime.shot.app-merged_res-55:/navigation_nav_graph.xml.flat",
         "source": "com.sametime.shot.app-main-57:/navigation/nav_graph.xml"
     },
@@ -184,12 +188,24 @@
         "source": "com.sametime.shot.app-main-57:/anim/slide_in_left.xml"
     },
     {
+        "merged": "com.sametime.shot.app-merged_res-55:/layout_custom_toast.xml.flat",
+        "source": "com.sametime.shot.app-main-57:/layout/custom_toast.xml"
+    },
+    {
         "merged": "com.sametime.shot.app-merged_res-55:/drawable_bg_button_kliens.xml.flat",
         "source": "com.sametime.shot.app-main-57:/drawable/bg_button_kliens.xml"
     },
     {
+        "merged": "com.sametime.shot.app-merged_res-55:/drawable_bg_toast.xml.flat",
+        "source": "com.sametime.shot.app-main-57:/drawable/bg_toast.xml"
+    },
+    {
         "merged": "com.sametime.shot.app-merged_res-55:/anim_fade_out.xml.flat",
         "source": "com.sametime.shot.app-main-57:/anim/fade_out.xml"
+    },
+    {
+        "merged": "com.sametime.shot.app-merged_res-55:/drawable_bg_rounded_white.xml.flat",
+        "source": "com.sametime.shot.app-main-57:/drawable/bg_rounded_white.xml"
     },
     {
         "merged": "com.sametime.shot.app-merged_res-55:/anim_slide_out_left.xml.flat",

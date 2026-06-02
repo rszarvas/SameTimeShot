@@ -47,7 +47,13 @@ class ClientFragment : Fragment() {
         b.rvDevices.layoutManager = LinearLayoutManager(requireContext())
         b.rvDevices.adapter = deviceAdapter
 
-        b.btnRefresh.setOnClickListener { vm.startDiscovery() }
+        b.btnConnectToWiFi.setOnClickListener {
+            vm.openWifiSettings()
+        }
+
+        b.btnFindServer.setOnClickListener {
+            vm.findAndConnectToServer()
+        }
 
         // Rendszer sávok a kamera nézetben
         ViewCompat.setOnApplyWindowInsetsListener(b.layoutCamera) { _, insets ->
@@ -66,7 +72,6 @@ class ClientFragment : Fragment() {
 
         vm.isDiscovering.observe(viewLifecycleOwner) { d ->
             b.progressDiscovery.visibility = if (d) View.VISIBLE else View.GONE
-            b.btnRefresh.isEnabled = !d
         }
 
         vm.isConnected.observe(viewLifecycleOwner) { connected ->
@@ -142,52 +147,9 @@ class ClientFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        if (!discoveryStartAttempted) {
-            discoveryStartAttempted = true
-            requestWiFiPermissionAndStartDiscovery()
-        }
+        // WiFi módban nincs szükség azonnali discovery-re, a felhasználó kattint majd a gombokra
     }
 
-    private fun requestWiFiPermissionAndStartDiscovery() {
-        // Android 13+ szükséges az engedély
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(
-                    requireContext(),
-                    Manifest.permission.ACCESS_FINE_LOCATION
-                ) == PackageManager.PERMISSION_GRANTED
-            ) {
-                Log.d(TAG, "✓ ACCESS_FINE_LOCATION engedély megadva")
-                vm.startDiscovery()
-            } else {
-                Log.d(TAG, "Engedély kérése: ACCESS_FINE_LOCATION")
-                ActivityCompat.requestPermissions(
-                    requireActivity(),
-                    arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                    PERMISSION_REQUEST_CODE
-                )
-            }
-        } else {
-            // Android 12 és alatta
-            vm.startDiscovery()
-        }
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == PERMISSION_REQUEST_CODE) {
-            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Log.d(TAG, "✓ Engedély megadva, keresés indítása...")
-                vm.startDiscovery()
-            } else {
-                Log.e(TAG, "✗ Engedély megtagadva!")
-                Toast.makeText(requireContext(), "WiFi engedély szükséges!", Toast.LENGTH_LONG).show()
-            }
-        }
-    }
 
     override fun onDestroyView() {
         super.onDestroyView()
@@ -195,9 +157,10 @@ class ClientFragment : Fragment() {
         _b = null
     }
 
-    /** "telefon2" → "Telefon 2",  "telefon12" → "Telefon 12" */
+    /** "Telefon-2" → "Telefon-2",  "Telefon-12" → "Telefon-12" */
     private fun formatBadge(name: String): String {
-        val num = name.removePrefix("telefon")
-        return "Telefon $num"
+        // A name már "Telefon-2" formátumú, csak az utolsó karaktert kell (a számot)
+        val num = name.removePrefix("Telefon-")
+        return "Telefon-$num"
     }
 }

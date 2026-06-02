@@ -5,23 +5,30 @@ import android.app.Application
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
 import android.content.ContentValues
+import android.content.Context
+import android.content.Intent
+import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
+import android.provider.Settings
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.sametime.shot.bluetooth.ControllerBtManager
 import com.sametime.shot.model.ConnectedDevice
 import com.sametime.shot.model.TransferState
 import com.sametime.shot.model.TransferStatus
 import com.sametime.shot.model.WifiClient
 import com.sametime.shot.tcp.TcpServer
 import com.sametime.shot.wifi.WifiHotspotManager
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.net.DatagramPacket
+import java.net.DatagramSocket
+import java.net.InetAddress
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -53,75 +60,339 @@ class ControllerViewModel(application: Application) : AndroidViewModel(applicati
     private val _navigateToStart = MutableLiveData(false)
     val navigateToStart: LiveData<Boolean> = _navigateToStart
 
+    private val _hotspotName = MutableLiveData("")
+    val hotspotName: LiveData<String> = _hotspotName
+
+    private val _hotspotPassword = MutableLiveData("")
+    val hotspotPassword: LiveData<String> = _hotspotPassword
+
+    private val _hotspotActive = MutableLiveData(false)
+    val hotspotActive: LiveData<Boolean> = _hotspotActive
+
     private var sessionTimestamp = ""
     private var photoCounter = 0
     private var serverStarted = false
+    private var udpServer: DatagramSocket? = null
+    private var isRunning = false
 
     // WiFi + TCP komponensek
     private val wifiHotspotManager = WifiHotspotManager(application)
     private lateinit var tcpServer: TcpServer
 
-    private val btAdapter: BluetoothAdapter by lazy {
-        @SuppressLint("MissingPermission")
-        val a = (application.getSystemService(BluetoothManager::class.java)).adapter; a
-    }
-
-    private val btManager by lazy {
-        ControllerBtManager(
-            adapter = btAdapter,
-            onPhotoReceived = { filename, bytes -> saveReceivedPhoto(filename, bytes) },
-            onDeviceConnected = { device ->
-                val list = _devices.value.orEmpty().toMutableList().also { it.add(device) }
-                _devices.postValue(list)
-                _status.postValue("${list.size} telefon csatlakozva")
-            },
-            onDeviceDisconnected = { name ->
-                val list = _devices.value.orEmpty().filterNot { it.name == name }
-                _devices.postValue(list)
-                _status.postValue("$name lecsatlakozott")
-            },
-            onTransferProgress = { name, status, progress ->
-                val map = _transferStates.value.orEmpty().toMutableMap()
-                map[name] = TransferState(status, progress)
-                _transferStates.postValue(map)
-                when (status) {
-                    TransferStatus.DONE -> _status.postValue("$name képe megérkezett ✓")
-                    TransferStatus.ERROR -> _status.postValue("$name küldési hiba!")
-                    else -> {}
-                }
-            },
-            onStatusChange = { msg -> _status.postValue(msg) }
-        )
-    }
+    // Bluetooth támogatás eltávolítva - csak WiFi/TCP
 
     fun startServer() {
         if (serverStarted) return
         serverStarted = true
 
         Log.d(TAG, "Szerver indítása WiFi + TCP üzemmódban")
-        _status.value = "WiFi hotspot indítása..."
+        _status.value = "Szerver indítása..."
 
-        // 1. WiFi hotspot indítása
-        wifiHotspotManager.startHotspot { success, message ->
-            Log.d(TAG, "Hotspot callback: $message")
-            _status.postValue(message)
+        // UDP szerver indítása (device discovery)
+        startUdpServer()
 
-            if (success) {
-                // 2. TCP szerver indítása
-                Log.d(TAG, "TCP szerver indítása...")
-                initTcpServer()
-                tcpServer.start()
+        // TCP szerver indítása
+        initTcpServer()
+        tcpServer.start()
+
+        // Hotspot név lekérdezése
+        getHotspotName()
+
+        // Hotspot monitor indítása (5 másodpercenként ellenőrizze az állapotot)
+        startHotspotMonitor()
+    }
+
+    private fun startUdpServer() {
+        isRunning = true
+        Thread {
+            try {
+                udpServer = DatagramSocket(9998)
+                Log.d(TAG, "✓ UDP szerver indult a 9998-as porton")
+
+                while (isRunning && udpServer != null) {
+                    val buffer = ByteArray(256)
+                    val packet = DatagramPacket(buffer, buffer.size)
+                    udpServer?.receive(packet) ?: break
+
+                    val message = String(packet.data, 0, packet.length).trim()
+                    if (message == "FIND_SERVER") {
+                        Log.d(TAG, "← Kliens keresése: ${packet.address}")
+
+                        val myIp = getLocalIpAddress()
+                        val response = "SERVER_HERE|$myIp"
+                        val responseBytes = response.toByteArray()
+                        val responsePacket = DatagramPacket(
+                            responseBytes,
+                            responseBytes.size,
+                            packet.address,
+                            packet.port
+                        )
+                        udpServer?.send(responsePacket)
+                        Log.d(TAG, "→ Válasz: $myIp")
+                    }
+                }
+            } catch (e: Exception) {
+                if (isRunning) {
+                    Log.e(TAG, "UDP szerver hiba", e)
+                }
+            } finally {
+                udpServer?.close()
             }
+        }.start()
+    }
+
+    private fun getLocalIpAddress(): String {
+        return try {
+            // 1. Próbálkozzunk a WiFi Manager-rel
+            val wifiManager = getApplication<Application>()
+                .getSystemService(Context.WIFI_SERVICE) as WifiManager
+            val ipAddress = wifiManager.connectionInfo.ipAddress
+            if (ipAddress != 0) {
+                return String.format(
+                    "%d.%d.%d.%d",
+                    ipAddress and 0xff,
+                    (ipAddress shr 8) and 0xff,
+                    (ipAddress shr 16) and 0xff,
+                    (ipAddress shr 24) and 0xff
+                )
+            }
+
+            // 2. Fallback: összes hálózati interfészt keresünk meg
+            val interfaces = java.net.NetworkInterface.getNetworkInterfaces()
+            while (interfaces.hasMoreElements()) {
+                val ni = interfaces.nextElement()
+                val addresses = ni.inetAddresses
+                while (addresses.hasMoreElements()) {
+                    val addr = addresses.nextElement()
+                    if (!addr.isLoopbackAddress && addr is java.net.Inet4Address) {
+                        val ip = addr.hostAddress
+                        if (ip.isNotEmpty() && !ip.startsWith("127.")) {
+                            Log.d(TAG, "✓ IP megtalálva: $ip (interfész: ${ni.name})")
+                            return ip
+                        }
+                    }
+                }
+            }
+
+            // 3. Utolsó fallback: hotspot default IP
+            "192.168.43.1"
+        } catch (e: Exception) {
+            Log.e(TAG, "IP lekérdezés hiba", e)
+            "192.168.43.1"
+        }
+    }
+
+    private fun getHotspotName() {
+        Thread {
+            try {
+                val ip = getLocalIpAddress()
+                Log.d(TAG, "═══ HOTSPOT MONITOROZÁS ═══")
+                Log.d(TAG, "IP: $ip")
+                Log.d(TAG, "isRunning: $isRunning")
+                Log.d(TAG, "tcpServer init: ${::tcpServer.isInitialized}")
+
+                val wifiManager = getApplication<Application>()
+                    .getSystemService(Context.WIFI_SERVICE) as WifiManager
+
+                // WifiManager információk
+                try {
+                    val connectionInfo = wifiManager.connectionInfo
+                    Log.d(TAG, "WifiManager.getConnectionInfo():")
+                    Log.d(TAG, "  - SSID: ${connectionInfo.ssid}")
+                    Log.d(TAG, "  - BSSID: ${connectionInfo.bssid}")
+                    Log.d(TAG, "  - Link Speed: ${connectionInfo.linkSpeed}")
+                    Log.d(TAG, "  - IP: ${connectionInfo.ipAddress}")
+                } catch (e: Exception) {
+                    Log.e(TAG, "WifiManager.getConnectionInfo() hiba: ${e.message}")
+                }
+
+                // WiFi State alapján detektálás
+                var wifiState = 4 // UNKNOWN
+                var isWifiDisabled = false
+                try {
+                    wifiState = wifiManager.wifiState
+                    Log.d(TAG, "WifiManager.getWifiState(): $wifiState")
+                    // 0 = WIFI_STATE_DISABLING
+                    // 1 = WIFI_STATE_DISABLED  ← Hotspot aktív = WiFi ki van kapcsolva!
+                    // 2 = WIFI_STATE_ENABLING
+                    // 3 = WIFI_STATE_ENABLED   ← WiFi bekapcsolt = Hotspot valószínűleg ki
+                    // 4 = WIFI_STATE_UNKNOWN
+                    isWifiDisabled = (wifiState == 0 || wifiState == 1) // DISABLING vagy DISABLED
+                    Log.d(TAG, "WiFi letiltva (hotspot jele): $isWifiDisabled")
+                } catch (e: Exception) {
+                    Log.e(TAG, "WifiManager.getWifiState() hiba: ${e.message}")
+                }
+
+                // Csatlakoztatott kliensek száma
+                val clientCount = if (::tcpServer.isInitialized) tcpServer.getClientCount() else 0
+                Log.d(TAG, "Csatlakoztatott TCP kliensek: $clientCount")
+
+                // Hotspot detektálása: WiFi letiltva VAGY van csatlakozó kliens
+                val hasClients = clientCount > 0
+                val shouldBeActive = isWifiDisabled || hasClients
+
+                Log.d(TAG, "Hotspot detektálása: hasClients=$hasClients, shouldBeActive=$shouldBeActive")
+
+                if (shouldBeActive) {
+                    Log.d(TAG, "✓ HOTSPOT AKTÍV")
+                    _hotspotActive.postValue(true)
+
+                    // SSID lekérdezésének kísérlete - több módszerrel
+                    var ssid = ""
+                    val context = getApplication<Application>()
+
+                    // 1. Próbálkozás: Különböző Settings Secure kulcsok
+                    val possibleKeys = listOf(
+                        "tether_ssid",           // Közös
+                        "wifi_tether_ssid",      // Samsung
+                        "tethering_ssid",        // Egyéb
+                        "wifi_ap_ssid",          // Alternatív
+                        "softap_ssid"            // Alternatív
+                    )
+
+                    for (key in possibleKeys) {
+                        try {
+                            val value = Settings.Secure.getString(context.contentResolver, key)
+                            if (value != null && value.isNotEmpty() && !value.startsWith("<")) {
+                                ssid = value
+                                Log.d(TAG, "✓ SSID a Settings-ből (key: $key): $ssid")
+                                break
+                            } else {
+                                Log.d(TAG, "→ Settings key '$key' üres vagy érvénytelen: $value")
+                            }
+                        } catch (e: Exception) {
+                            Log.d(TAG, "→ Settings key '$key' lekérdezés hiba: ${e.message}")
+                        }
+                    }
+
+                    // 2. Fallback: WifiManager.getConnectionInfo()
+                    if (ssid.isEmpty()) {
+                        try {
+                            val rawSsid = wifiManager.connectionInfo.ssid
+                            Log.d(TAG, "→ Raw SSID (WifiManager): $rawSsid")
+                            ssid = rawSsid.replace("\"", "")
+                            Log.d(TAG, "→ Cleaned SSID: $ssid")
+
+                            if (ssid.isEmpty() || ssid.startsWith("<")) {
+                                Log.d(TAG, "→ SSID érvénytelen")
+                                ssid = ""
+                            }
+                        } catch (e: Exception) {
+                            Log.d(TAG, "→ WifiManager SSID lekérdezés hiba: ${e.message}")
+                        }
+                    }
+
+                    val displayName = if (ssid.isNotEmpty()) ssid else "Hotspot"
+                    Log.d(TAG, "✓ Megjelenítendő név: $displayName")
+                    _hotspotName.postValue(displayName)
+                } else {
+                    Log.d(TAG, "✗ HOTSPOT NINCS AKTÍV")
+                    _hotspotActive.postValue(false)
+                }
+
+                Log.d(TAG, "═══════════════════════════")
+
+            } catch (e: Exception) {
+                Log.e(TAG, "HOTSPOT LEKÉRDEZÉS KRITIKUS HIBA: ${e.message}", e)
+                _hotspotActive.postValue(false)
+            }
+        }.start()
+    }
+
+    /**
+     * Hotspot monitor – 5 másodpercenként ellenőrzi az állapotot
+     */
+    private fun startHotspotMonitor() {
+        viewModelScope.launch {
+            while (isRunning) {
+                try {
+                    delay(5000) // 5 másodperc
+                    getHotspotName()
+                } catch (e: Exception) {
+                    Log.e(TAG, "Hotspot monitor hiba", e)
+                }
+            }
+        }
+    }
+
+    fun setHotspotInfo(ssid: String, password: String) {
+        Log.d(TAG, "Hotspot adatok beállítva: $ssid")
+        _hotspotName.postValue(ssid)
+        _hotspotPassword.postValue(password)
+        _hotspotActive.postValue(true)
+    }
+
+    fun openHotspotSettings() {
+        val infoMsg = "A telefonod beállításaival injíts egy mobil hotspot internetmegosztást, a KLIENS telefonok kapcsolódjanak ehhez a hotspothoz"
+
+        try {
+            val app = getApplication<Application>()
+            val intentsTried = mutableListOf<String>()
+
+            // 1. Próbálkozzunk explicit TetherSettings Activity-vel (Samsung, Google, stb.)
+            val tetherActivities = listOf(
+                "com.android.settings/.TetherSettings",
+                "com.android.settings/.network.TetherSettings",
+                "android.settings.TETHERING_SETTINGS"
+            )
+
+            for (activity in tetherActivities) {
+                try {
+                    val intent = Intent().apply {
+                        component = android.content.ComponentName(
+                            activity.substringBefore("/"),
+                            activity.substringAfter("/")
+                        )
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                    }
+                    app.startActivity(intent)
+                    Log.d(TAG, "TetherSettings megnyitva: $activity")
+                    _status.postValue(infoMsg)
+                    return
+                } catch (e: Exception) {
+                    intentsTried.add(activity)
+                    Log.d(TAG, "Nem működik: $activity")
+                }
+            }
+
+            // 2. Fallback: Network Settings (még közelebbi, mint általános Settings)
+            val intent = Intent().apply {
+                component = android.content.ComponentName(
+                    "com.android.settings",
+                    "com.android.settings.Settings\$NetworkDashboardActivity"
+                )
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            }
+            try {
+                app.startActivity(intent)
+                Log.d(TAG, "Network Settings megnyitva")
+                _status.postValue(infoMsg)
+                return
+            } catch (e: Exception) {
+                Log.d(TAG, "Network Settings nem működik")
+            }
+
+            // 3. Utolsó fallback: általános Settings
+            val settingsIntent = Intent(Settings.ACTION_SETTINGS).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            }
+            app.startActivity(settingsIntent)
+            Log.d(TAG, "Beállítások megnyitva")
+            _status.postValue(infoMsg)
+
+        } catch (e: Exception) {
+            Log.e(TAG, "Hiba a beállítások megnyitásakor", e)
+            _status.postValue(infoMsg)
         }
     }
 
     private fun initTcpServer() {
         tcpServer = TcpServer(
             port = 9999,
-            onClientConnected = { clientName, clientCount ->
-                Log.d(TAG, "✓ WiFi kliens csatlakozva: $clientName (összesen: $clientCount)")
+            onClientConnected = { clientName, deviceType, clientCount ->
+                Log.d(TAG, "✓ WiFi kliens csatlakozva: $clientName | Típus: $deviceType (összesen: $clientCount)")
                 // WiFi kliens hozzáadása a külön listához
-                val wifiClient = WifiClient(name = clientName)
+                val wifiClient = WifiClient(name = clientName, type = deviceType)
                 val list = _wifiClients.value.orEmpty().toMutableList()
                 if (list.none { it.name == clientName }) {
                     list.add(wifiClient)
@@ -143,6 +414,28 @@ class ControllerViewModel(application: Application) : AndroidViewModel(applicati
                 map[clientName] = TransferState(TransferStatus.DONE, 100)
                 _transferStates.postValue(map)
                 _status.postValue("$clientName képe megérkezett ✓")
+
+                // 3 másodperc után töröljük az üzenetet
+                viewModelScope.launch {
+                    delay(3000)
+                    _status.postValue("")
+                }
+            },
+            onProgressReceived = { clientName, fileName, progress ->
+                Log.d(TAG, "↻ Feltöltés előrehaladása: $clientName - $progress%")
+                val map = _transferStates.value.orEmpty().toMutableMap()
+                map[clientName] = TransferState(TransferStatus.TRANSFERRING, progress)
+                _transferStates.postValue(map)
+
+                // Ha 100%, akkor 3 másodperc után vissza IDLE-re
+                if (progress >= 100) {
+                    viewModelScope.launch {
+                        delay(3000)
+                        val resetMap = _transferStates.value.orEmpty().toMutableMap()
+                        resetMap[clientName] = TransferState(TransferStatus.IDLE, 0)
+                        _transferStates.postValue(resetMap)
+                    }
+                }
             },
             onError = { message ->
                 Log.e(TAG, "TCP szerver hiba: $message")
@@ -153,7 +446,14 @@ class ControllerViewModel(application: Application) : AndroidViewModel(applicati
 
     fun lockConnections() {
         _isLocked.value = true
-        btManager.lockConnections()
+        // btManager.lockConnections() // Bluetooth deaktiválva
+
+        // WiFi klienteknek LOCK parancs
+        if (::tcpServer.isInitialized) {
+            Log.d(TAG, "LOCK parancs küldése WiFi klienseknek")
+            tcpServer.broadcastMessage("LOCK")
+        }
+
         _status.value = "Kamera aktív – készen áll a fotózásra"
     }
 
@@ -162,13 +462,15 @@ class ControllerViewModel(application: Application) : AndroidViewModel(applicati
         photoCounter++
         val filename = "sts_${sessionTimestamp}_telefon1_${"%03d".format(photoCounter)}.jpg"
 
-        // Bluetooth klienteknek
-        btManager.shootAll(sessionTimestamp, photoCounter)
+        // Bluetooth klienteknek (deaktiválva)
+        // btManager.shootAll(sessionTimestamp, photoCounter)
 
-        // WiFi klienteknek (TCP-n keresztül)
+        // WiFi klienteknek (TCP-n keresztül) – optimalizált delay Handler.postAtTime()-vel
+        // 1000ms delay elég a pontosabb Handler.postAtTime() szinkronizációval
         if (::tcpServer.isInitialized) {
-            Log.d(TAG, "SHOOT parancs küldése WiFi klienseknek")
-            tcpServer.broadcastMessage("SHOOT|$sessionTimestamp|${"%03d".format(photoCounter)}")
+            Log.d(TAG, "SHOOT parancs küldése WiFi klienseknek (1000ms delay, postAtTime szinkronizáció)")
+            val shootTime = System.currentTimeMillis() + 1000L
+            tcpServer.broadcastMessage("SHOOT|$sessionTimestamp|${"%03d".format(photoCounter)}|$shootTime")
         }
 
         _status.value = "Fénykép készítése..."
@@ -197,7 +499,11 @@ class ControllerViewModel(application: Application) : AndroidViewModel(applicati
     }
 
     fun disconnectAll() {
-        Log.d(TAG, "Szerver leállítása és hotspot kikapcsolása")
+        Log.d(TAG, "Szerver leállítása")
+        isRunning = false
+
+        // UDP szerver leállítása
+        udpServer?.close()
 
         // TCP szerver leállítása
         if (::tcpServer.isInitialized) {
@@ -205,13 +511,8 @@ class ControllerViewModel(application: Application) : AndroidViewModel(applicati
             tcpServer.stop()
         }
 
-        // WiFi hotspot kikapcsolása
-        wifiHotspotManager.stopHotspot { success, message ->
-            Log.d(TAG, "Hotspot leállítása: $message")
-        }
-
-        // Bluetooth leállítása (fallback)
-        btManager.disconnectAll()
+        // Bluetooth leállítása (deaktiválva)
+        // btManager.disconnectAll()
 
         _navigateToStart.value = true
     }
@@ -222,17 +523,17 @@ class ControllerViewModel(application: Application) : AndroidViewModel(applicati
         super.onCleared()
         Log.d(TAG, "ViewModel takarítás")
 
+        isRunning = false
+
+        // UDP szerver leállítása
+        udpServer?.close()
+
         // Szerver leállítása
         if (::tcpServer.isInitialized) {
             tcpServer.stop()
         }
 
-        // Hotspot kikapcsolása
-        if (wifiHotspotManager.isHotspotActive()) {
-            wifiHotspotManager.stopHotspot { _, _ -> }
-        }
-
-        // Bluetooth leállítása
-        btManager.cleanup()
+        // Bluetooth leállítása (deaktiválva)
+        // btManager.cleanup()
     }
 }

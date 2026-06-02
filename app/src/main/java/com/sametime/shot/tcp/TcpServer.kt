@@ -1,13 +1,12 @@
 package com.sametime.shot.tcp
 
+import android.util.Base64
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import java.io.BufferedReader
 import java.io.BufferedWriter
-import java.io.DataInputStream
-import java.io.DataOutputStream
 import java.io.InputStreamReader
 import java.io.OutputStreamWriter
 import java.net.InetAddress
@@ -18,18 +17,20 @@ import java.util.concurrent.ConcurrentHashMap
 /**
  * TCP szerver a vezérlőn.
  * Fogadja a kliens kapcsolatokat és kezeli a fájlátvitelt.
+ *
+ * MINDEN ADATOT SZÖVEGES FORMÁTUMBAN FOGADUNK (Base64 fotók)!
  */
 class TcpServer(
     private val port: Int = 9999,
-    private val onClientConnected: (clientName: String, clientCount: Int) -> Unit = { _, _ -> },
+    private val onClientConnected: (clientName: String, deviceType: String?, clientCount: Int) -> Unit = { _, _, _ -> },
     private val onClientDisconnected: (clientName: String, clientCount: Int) -> Unit = { _, _ -> },
     private val onPhotoReceived: (clientName: String, fileName: String, bytes: ByteArray) -> Unit = { _, _, _ -> },
+    private val onProgressReceived: (clientName: String, fileName: String, progress: Int) -> Unit = { _, _, _ -> },
     private val onError: (message: String) -> Unit = {}
 ) {
 
     companion object {
         private const val TAG = "STS-TcpServer"
-        private const val CHUNK_SIZE = 16 * 1024 // 16KB
     }
 
     private var serverSocket: ServerSocket? = null
@@ -91,14 +92,12 @@ class TcpServer(
                 Log.d(TAG, "⏳ Szerver vár a kliens csatlakozásara... serverSocket=$serverSocket, isRunning=$isRunning")
                 val clientSocket = serverSocket?.accept() ?: continue
                 clientCounter++
-                val clientName = "telefon${clientCounter + 1}"
+                val clientName = "Telefon-${clientCounter + 1}"
 
                 Log.d(TAG, "→ Új kliens csatlakozva: $clientName")
 
                 val handler = ClientHandler(clientSocket, clientName)
                 connectedClients[clientName] = handler
-
-                onClientConnected(clientName, connectedClients.size)
 
                 // Kliens kezelése egy külön szálban
                 kotlin.concurrent.thread {
@@ -119,9 +118,11 @@ class TcpServer(
      * Szórásos üzenet küldése (pl. SHOOT parancs)
      */
     fun broadcastMessage(message: String) {
-        connectedClients.forEach { (_, handler) ->
-            handler.sendMessage(message)
-        }
+        Thread {
+            connectedClients.forEach { (_, handler) ->
+                handler.sendMessage(message)
+            }
+        }.start()
     }
 
     /**
@@ -136,10 +137,9 @@ class TcpServer(
         private val socket: Socket,
         private val clientName: String
     ) {
-        private val input = DataInputStream(socket.inputStream)
-        private val output = DataOutputStream(socket.outputStream)
         private val reader = BufferedReader(InputStreamReader(socket.inputStream))
         private val writer = BufferedWriter(OutputStreamWriter(socket.outputStream))
+        private var deviceType: String? = null
 
         fun sendMessage(message: String) {
             try {
@@ -151,36 +151,22 @@ class TcpServer(
             }
         }
 
-        fun sendPhoto(fileName: String, bytes: ByteArray) {
-            try {
-                // Protokoll: PHOTO|filename|size|data
-                val message = "PHOTO|$fileName|${bytes.size}\n"
-                writer.write(message)
-                writer.flush()
-
-                // Fájl adatok küldése chunks-ban
-                var sent = 0
-                while (sent < bytes.size) {
-                    val chunk = minOf(CHUNK_SIZE, bytes.size - sent)
-                    output.write(bytes, sent, chunk)
-                    output.flush()
-                    sent += chunk
-                }
-
-                Log.d(TAG, "✓ Fotó elküldve: $fileName ($clientName)")
-            } catch (e: Exception) {
-                Log.e(TAG, "Hiba a fotó küldésekor ($clientName)", e)
-            }
-        }
-
         fun handleClient() {
             try {
-                // HELLO üzenet fogadása
+                // HELLO üzenet fogadása (formátum: "HELLO|client|Samsung SM-A605FN")
                 val hello = reader.readLine() ?: return
                 Log.d(TAG, "← HELLO: $hello ($clientName)")
 
+                // Telefon típusának kinyerése
+                val helloParts = hello.split("|")
+                deviceType = if (helloParts.size >= 3) helloParts[2] else null
+                Log.d(TAG, "✓ Telefon típusa: $deviceType")
+
                 // READY válasz
                 sendMessage("READY|$clientName")
+
+                // Callback a telefon típusával
+                onClientConnected(clientName, deviceType, connectedClients.size)
 
                 // Üzenetek fogadása
                 while (isRunning && socket.isConnected) {
@@ -189,6 +175,9 @@ class TcpServer(
                     when {
                         line.startsWith("PHOTO|") -> {
                             handlePhotoMessage(line)
+                        }
+                        line.startsWith("PROGRESS|") -> {
+                            handleProgressMessage(line)
                         }
                         line == "DISCONNECT" -> {
                             Log.d(TAG, "← DISCONNECT ($clientName)")
@@ -209,31 +198,53 @@ class TcpServer(
 
         private fun handlePhotoMessage(line: String) {
             try {
-                val parts = line.split("|")
-                if (parts.size < 3) return
-
-                val fileName = parts[1]
-                val fileSize = parts[2].toInt()
-
-                // Fájl adatok fogadása
-                val bytes = ByteArray(fileSize)
-                var received = 0
-
-                while (received < fileSize) {
-                    val chunk = input.read(bytes, received, fileSize - received)
-                    if (chunk == -1) break
-                    received += chunk
+                val parts = line.split("|", limit = 4)
+                if (parts.size < 4) {
+                    Log.w(TAG, "⚠️ Hiányos PHOTO üzenet: $line")
+                    return
                 }
 
-                if (received == fileSize) {
-                    Log.d(TAG, "✓ Fotó fogadva: $fileName ($clientName, $fileSize byte)")
-                    onPhotoReceived(clientName, fileName, bytes)
-                } else {
-                    Log.w(TAG, "⚠️ Hiányos fotó: $fileName (${received}/${fileSize} byte)")
+                val fileName = parts[1]
+                val originalSize = parts[2].toInt()
+                val base64Data = parts[3]
+
+                Log.d(TAG, "← PHOTO fejléc: $fileName, $originalSize byte, Base64: ${base64Data.length} karakter")
+
+                // Base64 dekódolás
+                try {
+                    val bytes = Base64.decode(base64Data, Base64.NO_WRAP)
+
+                    if (bytes.size == originalSize) {
+                        Log.d(TAG, "✓ Fotó fogadva: $fileName ($clientName, ${bytes.size} byte)")
+                        onPhotoReceived(clientName, fileName, bytes)
+                    } else {
+                        Log.w(TAG, "⚠️ Méret eltérés: $fileName (${bytes.size}/${originalSize} byte)")
+                    }
+                } catch (e: Exception) {
+                    Log.e(TAG, "⚠️ Base64 dekódolási hiba: $fileName", e)
                 }
 
             } catch (e: Exception) {
                 Log.e(TAG, "Hiba a fotó feldolgozása közben", e)
+            }
+        }
+
+        private fun handleProgressMessage(line: String) {
+            try {
+                val parts = line.split("|", limit = 3)
+                if (parts.size < 3) {
+                    Log.w(TAG, "⚠️ Hiányos PROGRESS üzenet: $line")
+                    return
+                }
+
+                val fileName = parts[1]
+                val progress = parts[2].toIntOrNull() ?: 0
+
+                Log.d(TAG, "← PROGRESS: $fileName ($progress%) ($clientName)")
+                onProgressReceived(clientName, fileName, progress)
+
+            } catch (e: Exception) {
+                Log.e(TAG, "Hiba a progress feldolgozása közben", e)
             }
         }
 

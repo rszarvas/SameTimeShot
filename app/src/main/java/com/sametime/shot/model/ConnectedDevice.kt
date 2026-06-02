@@ -9,6 +9,7 @@ data class ConnectedDevice(
     val socket: BluetoothSocket,
     val outputStream: OutputStream,
     val inputStream: InputStream,
+    val type: String? = null,  // telefon típusa/modellje (pl. "Samsung SM-A605FN")
     var transferStatus: TransferStatus = TransferStatus.IDLE
 )
 

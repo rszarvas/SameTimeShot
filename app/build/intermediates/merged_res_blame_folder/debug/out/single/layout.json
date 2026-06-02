@@ -1,5 +1,25 @@
 [
     {
+        "merged": "com.sametime.shot.app-mergeDebugResources-54:/layout/item_connected_device.xml",
+        "source": "com.sametime.shot.app-main-57:/layout/item_connected_device.xml"
+    },
+    {
+        "merged": "com.sametime.shot.app-mergeDebugResources-54:/layout/item_discovered_device.xml",
+        "source": "com.sametime.shot.app-main-57:/layout/item_discovered_device.xml"
+    },
+    {
+        "merged": "com.sametime.shot.app-mergeDebugResources-54:/layout/custom_toast.xml",
+        "source": "com.sametime.shot.app-main-57:/layout/custom_toast.xml"
+    },
+    {
+        "merged": "com.sametime.shot.app-mergeDebugResources-54:/layout/item_device.xml",
+        "source": "com.sametime.shot.app-main-57:/layout/item_device.xml"
+    },
+    {
+        "merged": "com.sametime.shot.app-mergeDebugResources-54:/layout/fragment_photo_viewer.xml",
+        "source": "com.sametime.shot.app-main-57:/layout/fragment_photo_viewer.xml"
+    },
+    {
         "merged": "com.sametime.shot.app-mergeDebugResources-54:/layout/item_gallery_session.xml",
         "source": "com.sametime.shot.app-main-57:/layout/item_gallery_session.xml"
     },
@@ -12,14 +32,6 @@
         "source": "com.sametime.shot.app-main-57:/layout/fragment_info.xml"
     },
     {
-        "merged": "com.sametime.shot.app-mergeDebugResources-54:/layout/item_discovered_device.xml",
-        "source": "com.sametime.shot.app-main-57:/layout/item_discovered_device.xml"
-    },
-    {
-        "merged": "com.sametime.shot.app-mergeDebugResources-54:/layout/item_device.xml",
-        "source": "com.sametime.shot.app-main-57:/layout/item_device.xml"
-    },
-    {
         "merged": "com.sametime.shot.app-mergeDebugResources-54:/layout/fragment_client.xml",
         "source": "com.sametime.shot.app-main-57:/layout/fragment_client.xml"
     },
@@ -30,10 +42,6 @@
     {
         "merged": "com.sametime.shot.app-mergeDebugResources-54:/layout/fragment_start.xml",
         "source": "com.sametime.shot.app-main-57:/layout/fragment_start.xml"
-    },
-    {
-        "merged": "com.sametime.shot.app-mergeDebugResources-54:/layout/fragment_photo_viewer.xml",
-        "source": "com.sametime.shot.app-main-57:/layout/fragment_photo_viewer.xml"
     },
     {
         "merged": "com.sametime.shot.app-mergeDebugResources-54:/layout/activity_main.xml",

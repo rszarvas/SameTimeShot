@@ -1,4 +1,4 @@
-#Sun May 31 13:35:11 CEST 2026
+#Tue Jun 02 17:10:09 CEST 2026
 base.0=D\:\\Ai\\claude\\SameTimeShotApp\\app\\build\\intermediates\\dex\\debug\\mergeExtDexDebug\\classes.dex
 base.1=D\:\\Ai\\claude\\SameTimeShotApp\\app\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\0\\classes.dex
 base.10=D\:\\Ai\\claude\\SameTimeShotApp\\app\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\9\\classes.dex

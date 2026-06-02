@@ -1,12 +1,13 @@
 package com.sametime.shot.tcp
 
+import android.os.Build
+import android.util.Base64
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import java.io.BufferedReader
 import java.io.BufferedWriter
-import java.io.DataInputStream
-import java.io.DataOutputStream
 import java.io.InputStreamReader
 import java.io.OutputStreamWriter
 import java.net.Socket
@@ -14,6 +15,8 @@ import java.net.Socket
 /**
  * TCP kliens a klienseken.
  * Csatlakozik a szerverre és küld fotókat.
+ *
+ * MINDEN ADATOT SZÖVEGES FORMÁTUMBAN KÜLDÜNK (Base64 fotók)!
  */
 class TcpClient(
     private val serverHost: String = "192.168.43.1",
@@ -26,12 +29,9 @@ class TcpClient(
 
     companion object {
         private const val TAG = "STS-TcpClient"
-        private const val CHUNK_SIZE = 16 * 1024 // 16KB
     }
 
     private var socket: Socket? = null
-    private var input: DataInputStream? = null
-    private var output: DataOutputStream? = null
     private var reader: BufferedReader? = null
     private var writer: BufferedWriter? = null
     private var isConnected = false
@@ -47,13 +47,13 @@ class TcpClient(
             socket = Socket(serverHost, serverPort)
             Log.d(TAG, "✓ Socket sikeresen létrehozva: $socket")
 
-            input = DataInputStream(socket!!.inputStream)
-            output = DataOutputStream(socket!!.outputStream)
             reader = BufferedReader(InputStreamReader(socket!!.inputStream))
             writer = BufferedWriter(OutputStreamWriter(socket!!.outputStream))
 
-            // HELLO üzenet küldése
-            sendMessage("HELLO|client")
+            // HELLO üzenet küldése telefon típusával
+            val deviceType = "${Build.MANUFACTURER} ${Build.MODEL}"
+            sendMessage("HELLO|client|$deviceType")
+            Log.d(TAG, "Telefon típusa küldve: $deviceType")
 
             // READY válasz fogadása
             val response = reader?.readLine()
@@ -83,7 +83,7 @@ class TcpClient(
     }
 
     /**
-     * Fotó küldése
+     * Fotó küldése Base64-ként
      */
     suspend fun sendPhoto(fileName: String, bytes: ByteArray): Boolean = withContext(Dispatchers.IO) {
         return@withContext try {
@@ -92,30 +92,29 @@ class TcpClient(
                 return@withContext false
             }
 
-            // Protokoll: PHOTO|filename|size\n + binary data
-            val message = "PHOTO|$fileName|${bytes.size}\n"
-            writer?.write(message)
-            writer?.flush()
+            Log.d(TAG, "→ Fotó küldésének kezdete: $fileName (${bytes.size} byte)")
 
-            // Fájl adatok küldése chunks-ban
-            var sent = 0
-            while (sent < bytes.size) {
-                val chunk = minOf(CHUNK_SIZE, bytes.size - sent)
-                output?.write(bytes, sent, chunk)
-                output?.flush()
-                sent += chunk
+            // Protokoll: PHOTO|filename|originalSize|base64data\n
+            val base64 = Base64.encodeToString(bytes, Base64.NO_WRAP)
+            Log.d(TAG, "→ Base64 kódolás kész: ${base64.length} karakter")
 
-                // Progress log minden 100KB után
-                if (sent % (100 * 1024) == 0) {
-                    Log.d(TAG, "Küldés alatt: $sent/${bytes.size} byte")
-                }
+            val message = "PHOTO|$fileName|${bytes.size}|$base64\n"
+
+            synchronized(socket!!) {
+                Log.d(TAG, "→ PHOTO üzenet küldése")
+                writer?.write(message)
+                writer?.flush()
+                Log.d(TAG, "✓ Fotó elküldve: $fileName (${bytes.size} byte)")
             }
 
-            Log.d(TAG, "✓ Fotó elküldve: $fileName (${bytes.size} byte)")
+            // 100% progress küldése (teljes)
+            sendMessage("PROGRESS|$fileName|100")
+
             true
 
         } catch (e: Exception) {
             Log.e(TAG, "Hiba a fotó küldésekor", e)
+            Log.e(TAG, "Stack trace:", e)
             onError("Fotó küldési hiba: ${e.message}")
             false
         }
@@ -127,16 +126,26 @@ class TcpClient(
     private fun receiveMessages() {
         try {
             while (isConnected && socket?.isConnected == true) {
-                val message = reader?.readLine() ?: break
-                Log.d(TAG, "← Üzenet: $message")
-                onMessageReceived(message)
+                try {
+                    val message = reader?.readLine() ?: break
+                    Log.d(TAG, "← Üzenet: $message")
+                    onMessageReceived(message)
 
-                when {
-                    message.startsWith("SHOOT") -> {
-                        // SHOOT parancs: ideje készíteni egy fotót
+                    when {
+                        message.startsWith("SHOOT") -> {
+                            // SHOOT parancs: ideje készíteni egy fotót
+                        }
+                        message == "DISCONNECT" -> {
+                            disconnect()
+                            break
+                        }
                     }
-                    message == "DISCONNECT" -> {
-                        disconnect()
+                } catch (e: Exception) {
+                    Log.e(TAG, "Hiba egy üzenet fogadásakor", e)
+                    if (isConnected && socket?.isConnected == true) {
+                        Log.d(TAG, "Próba helyreállítás az üzenet olvasásakor")
+                        Thread.sleep(100)
+                    } else {
                         break
                     }
                 }
@@ -153,18 +162,20 @@ class TcpClient(
      * Szerverre csatlakozás lecsatlakoztatása
      */
     fun disconnect() {
-        try {
-            if (isConnected) {
-                writer?.write("DISCONNECT\n")
-                writer?.flush()
+        Thread {
+            try {
+                if (isConnected) {
+                    writer?.write("DISCONNECT\n")
+                    writer?.flush()
+                }
+                isConnected = false
+                socket?.close()
+                Log.d(TAG, "✓ Szerverről lecsatlakozva")
+                onDisconnected()
+            } catch (e: Exception) {
+                Log.e(TAG, "Hiba a lecsatlakozás közben", e)
             }
-            isConnected = false
-            socket?.close()
-            Log.d(TAG, "✓ Szerverről lecsatlakozva")
-            onDisconnected()
-        } catch (e: Exception) {
-            Log.e(TAG, "Hiba a lecsatlakozás közben", e)
-        }
+        }.start()
     }
 
     /**

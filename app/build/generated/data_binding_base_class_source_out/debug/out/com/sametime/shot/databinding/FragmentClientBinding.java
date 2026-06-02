@@ -25,7 +25,10 @@ public final class FragmentClientBinding implements ViewBinding {
   private final ConstraintLayout rootView;
 
   @NonNull
-  public final Button btnRefresh;
+  public final Button btnConnectToWiFi;
+
+  @NonNull
+  public final Button btnFindServer;
 
   @NonNull
   public final PreviewView cameraPreview;
@@ -72,7 +75,8 @@ public final class FragmentClientBinding implements ViewBinding {
   @NonNull
   public final TextView tvStatus;
 
-  private FragmentClientBinding(@NonNull ConstraintLayout rootView, @NonNull Button btnRefresh,
+  private FragmentClientBinding(@NonNull ConstraintLayout rootView,
+      @NonNull Button btnConnectToWiFi, @NonNull Button btnFindServer,
       @NonNull PreviewView cameraPreview, @NonNull LinearLayout clientTopOverlay,
       @NonNull ConstraintLayout layoutCamera, @NonNull LinearLayout layoutConnected,
       @NonNull LinearLayout layoutDiscovery, @NonNull LinearLayout layoutSendProgress,
@@ -81,7 +85,8 @@ public final class FragmentClientBinding implements ViewBinding {
       @NonNull LinearLayout tvClientName, @NonNull TextView tvEmptyHint, @NonNull TextView tvMyName,
       @NonNull TextView tvSendPercent, @NonNull TextView tvStatus) {
     this.rootView = rootView;
-    this.btnRefresh = btnRefresh;
+    this.btnConnectToWiFi = btnConnectToWiFi;
+    this.btnFindServer = btnFindServer;
     this.cameraPreview = cameraPreview;
     this.clientTopOverlay = clientTopOverlay;
     this.layoutCamera = layoutCamera;
@@ -126,9 +131,15 @@ public final class FragmentClientBinding implements ViewBinding {
     // This is done to optimize the compiled bytecode for size and performance.
     int id;
     missingId: {
-      id = R.id.btnRefresh;
-      Button btnRefresh = ViewBindings.findChildViewById(rootView, id);
-      if (btnRefresh == null) {
+      id = R.id.btnConnectToWiFi;
+      Button btnConnectToWiFi = ViewBindings.findChildViewById(rootView, id);
+      if (btnConnectToWiFi == null) {
+        break missingId;
+      }
+
+      id = R.id.btnFindServer;
+      Button btnFindServer = ViewBindings.findChildViewById(rootView, id);
+      if (btnFindServer == null) {
         break missingId;
       }
 
@@ -222,10 +233,10 @@ public final class FragmentClientBinding implements ViewBinding {
         break missingId;
       }
 
-      return new FragmentClientBinding((ConstraintLayout) rootView, btnRefresh, cameraPreview,
-          clientTopOverlay, layoutCamera, layoutConnected, layoutDiscovery, layoutSendProgress,
-          layoutWaiting, progressDiscovery, progressSend, rvDevices, tvClientName, tvEmptyHint,
-          tvMyName, tvSendPercent, tvStatus);
+      return new FragmentClientBinding((ConstraintLayout) rootView, btnConnectToWiFi, btnFindServer,
+          cameraPreview, clientTopOverlay, layoutCamera, layoutConnected, layoutDiscovery,
+          layoutSendProgress, layoutWaiting, progressDiscovery, progressSend, rvDevices,
+          tvClientName, tvEmptyHint, tvMyName, tvSendPercent, tvStatus);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));
